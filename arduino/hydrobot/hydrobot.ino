@@ -21,21 +21,20 @@
 
 // These constants won't change.  They're used to give names
 // to the pins used:
+const int ledPin = 13;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
 int sensorValue = 0;        // value read from the pot
-int sensorHighValue = 0;
-int sensorLastHighValue = 0;
-int sensorLowValue = 0;
-int sensorLastLowValue = 0;
 int outputValue = 0;        // value output to the PWM (analog out)
-
-int ledPin = 13;      // select the pin for the LED
+int sensorLowValue = 0;
+int sensorHighValue = 0;
+int sensorLastLowValue = 0;
+int sensorLastHighValue = 0;
 
 unsigned long time;
-unsigned long lastHightime;
 unsigned long lastLowtime;
+unsigned long lastHightime;
 
 unsigned long pumpOnTimes[5];
 unsigned long pumpOffTimes[5];
