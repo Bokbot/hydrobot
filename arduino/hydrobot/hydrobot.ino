@@ -24,6 +24,7 @@
 const int ledPin = 13;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
+const int pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
 
 bool ok;
 bool pumpOn;
@@ -97,7 +98,7 @@ void loop() {
   if(pumpOn = 1){
     unsigned int pumpOnTimeCurrent;
     pumpOnTimeCurrent = timeOn - timeOff;
-    if(pumpOnTimeCurrent > 1800000){
+    if(pumpOnTimeCurrent > pumpOnTimeMax){
         digitalWrite(13, LOW);
         pumpOn = 0;
         timeOff = millis();
