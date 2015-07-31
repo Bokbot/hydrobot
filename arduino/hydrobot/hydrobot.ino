@@ -25,16 +25,24 @@ const int ledPin = 13;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
+bool ok;
+
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
-int sensorLowValue = 0;
+int sensorLowValue = 1023;
 int sensorHighValue = 0;
 int sensorLastLowValue = 0;
 int sensorLastHighValue = 0;
+int count;
+
+unsigned int count;
 
 unsigned long time;
-unsigned long lastLowtime;
-unsigned long lastHightime;
+unsigned long now;
+unsigned long throttleTime;
+unsigned long secondTime;
+unsigned long lastLowTime;
+unsigned long lastHighTime;
 
 unsigned long pumpOnTimes[5];
 unsigned long pumpOffTimes[5];
@@ -46,17 +54,26 @@ void setup() {
 }
 
 void loop() {
+  count++;
   // read the analog in value:
   sensorValue = analogRead(analogInPin);
   // map it to the range of the analog out:
   outputValue = map(sensorValue, 0, 1023, 0, 255);
   // change the analog out value:
   analogWrite(analogOutPin, outputValue);
-  if(sensorValue > 599) {
-    digitalWrite(13, HIGH);
+  if((throttleTime < millis()) || (count > 100000)){
+    ok = 1;
+    throttleTime = (millis() + 60000);
+    secondTime = (millis() + 1000);
   }
-  if(sensorValue < 475) {
-    digitalWrite(13, LOW);
+  if(ok = 1) {
+      ok = 0;
+      if(sensorValue > 599) {
+        digitalWrite(13, HIGH);
+      }
+      if(sensorValue < 475) {
+        digitalWrite(13, LOW);
+      }
   }
   if(sensorValue > sensorHighValue) {
     sensorHighValue = sensorValue;
@@ -64,20 +81,21 @@ void loop() {
   if(sensorValue < sensorLowValue) {
     sensorLowValue = sensorValue;
   }
-  
 
-  // print the results to the serial monitor:
-  Serial.print("sensor = ");
-  Serial.print(sensorValue);
-  Serial.print("sensorHi = ");
-  Serial.print(sensorHighValue);
-  Serial.print("sensorLo = ");
-  Serial.print(sensorLowValue);
+
+  if(secondTime < millis()){
+      secondTime = (millis() + 1000);
+      // print the results to the serial monitor:
+      Serial.print("sensor = ");
+      Serial.print(sensorValue);
+      Serial.print("sensorHi = ");
+      Serial.print(sensorHighValue);
+      Serial.print("sensorLo = ");
+      Serial.println(sensorLowValue);
+  }
 
   // wait 2 milliseconds before the next loop
   // for the analog-to-digital converter to settle
   // after the last reading:
   delay(2);
-  // delay one second to throttle the whole thing
-  delay(1000);
 }
