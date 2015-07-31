@@ -33,10 +33,10 @@ int sensorLowValue = 1023;
 int sensorHighValue = 0;
 int sensorLastLowValue = 0;
 int sensorLastHighValue = 0;
-int count;
 
 unsigned int count;
-unsigned int five;
+unsigned int fiveOn;
+unsigned int fiveOff;
 
 unsigned long now;
 unsigned long timeOn;
@@ -51,6 +51,8 @@ void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
+  timeOn = millis();
+  timeOff = millis();
 }
 
 void loop() {
@@ -63,6 +65,7 @@ void loop() {
   analogWrite(analogOutPin, outputValue);
   if((throttleTime < millis()) || (count > 100000)){
     ok = 1;
+    count = 0;
     throttleTime = (millis() + 60000);
     secondTime = (millis() + 1000);
   }
@@ -70,9 +73,15 @@ void loop() {
     ok = 0;
     if(sensorValue > 599) {
         digitalWrite(13, HIGH);
+        timeOn = millis();
+        pumpOffTimes[fiveOn] = timeOn - timeOff;
+        fiveOn++; if(fiveOn > 4){fiveOn = 0;}
     }
     if(sensorValue < 475) {
         digitalWrite(13, LOW);
+        timeOff = millis();
+        pumpOffTimes[fiveOff] = timeOff - timeOn;
+        fiveOff++; if(fiveOff > 4){fiveOff = 0;}
     }
   }
   if(sensorValue > sensorHighValue) {
@@ -81,7 +90,6 @@ void loop() {
   if(sensorValue < sensorLowValue) {
     sensorLowValue = sensorValue;
   }
-
 
   if(secondTime < millis()){
     secondTime = (millis() + 1000);
@@ -99,3 +107,4 @@ void loop() {
   // after the last reading:
   delay(2);
 }
+
