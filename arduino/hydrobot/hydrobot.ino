@@ -26,6 +26,7 @@ const int analogInPin = A0;  // Analog input pin that the potentiometer is attac
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
 bool ok;
+bool pumpOn;
 
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
@@ -53,6 +54,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   timeOn = millis();
   timeOff = millis();
+  pumpOn = 0;
 }
 
 void loop() {
@@ -73,12 +75,14 @@ void loop() {
     ok = 0;
     if(sensorValue > 599) {
         digitalWrite(13, HIGH);
+        pumpOn = 1;
         timeOn = millis();
-        pumpOffTimes[fiveOn] = timeOn - timeOff;
+        pumpOnTimes[fiveOn] = timeOn - timeOff;
         fiveOn++; if(fiveOn > 4){fiveOn = 0;}
     }
     if(sensorValue < 475) {
         digitalWrite(13, LOW);
+        pumpOn = 0;
         timeOff = millis();
         pumpOffTimes[fiveOff] = timeOff - timeOn;
         fiveOff++; if(fiveOff > 4){fiveOff = 0;}
@@ -89,6 +93,17 @@ void loop() {
   }
   if(sensorValue < sensorLowValue) {
     sensorLowValue = sensorValue;
+  }
+  if(pumpOn = 1){
+    unsigned int pumpOnTimeCurrent;
+    pumpOnTimeCurrent = timeOn - timeOff;
+    if(pumpOnTimeCurrent > 1800000){
+        digitalWrite(13, LOW);
+        pumpOn = 0;
+        timeOff = millis();
+        pumpOffTimes[fiveOff] = timeOff - timeOn;
+        fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+    }
   }
 
   if(secondTime < millis()){
