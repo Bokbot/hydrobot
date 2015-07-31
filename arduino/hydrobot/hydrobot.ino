@@ -36,6 +36,7 @@ int sensorLastHighValue = 0;
 int count;
 
 unsigned int count;
+unsigned int five;
 
 unsigned long now;
 unsigned long timeOn;
@@ -68,10 +69,10 @@ void loop() {
   if(ok = 1) {
     ok = 0;
     if(sensorValue > 599) {
-    digitalWrite(13, HIGH);
+        digitalWrite(13, HIGH);
     }
     if(sensorValue < 475) {
-    digitalWrite(13, LOW);
+        digitalWrite(13, LOW);
     }
   }
   if(sensorValue > sensorHighValue) {
