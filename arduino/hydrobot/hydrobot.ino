@@ -67,13 +67,13 @@ void loop() {
     secondTime = (millis() + 1000);
   }
   if(ok = 1) {
-      ok = 0;
-      if(sensorValue > 599) {
-        digitalWrite(13, HIGH);
-      }
-      if(sensorValue < 475) {
-        digitalWrite(13, LOW);
-      }
+    ok = 0;
+    if(sensorValue > 599) {
+    digitalWrite(13, HIGH);
+    }
+    if(sensorValue < 475) {
+    digitalWrite(13, LOW);
+    }
   }
   if(sensorValue > sensorHighValue) {
     sensorHighValue = sensorValue;
@@ -84,14 +84,14 @@ void loop() {
 
 
   if(secondTime < millis()){
-      secondTime = (millis() + 1000);
-      // print the results to the serial monitor:
-      Serial.print("sensor = ");
-      Serial.print(sensorValue);
-      Serial.print("sensorHi = ");
-      Serial.print(sensorHighValue);
-      Serial.print("sensorLo = ");
-      Serial.println(sensorLowValue);
+    secondTime = (millis() + 1000);
+    // print the results to the serial monitor:
+    Serial.print("sensor = ");
+    Serial.print(sensorValue);
+    Serial.print("sensorHi = ");
+    Serial.print(sensorHighValue);
+    Serial.print("sensorLo = ");
+    Serial.println(sensorLowValue);
   }
 
   // wait 2 milliseconds before the next loop
