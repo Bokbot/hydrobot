@@ -37,12 +37,11 @@ int count;
 
 unsigned int count;
 
-unsigned long time;
 unsigned long now;
-unsigned long throttleTime;
+unsigned long timeOn;
+unsigned long timeOff;
 unsigned long secondTime;
-unsigned long lastLowTime;
-unsigned long lastHighTime;
+unsigned long throttleTime;
 
 unsigned long pumpOnTimes[5];
 unsigned long pumpOffTimes[5];
