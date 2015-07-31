@@ -25,6 +25,7 @@ const int ledPin = 13;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 const int pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
+const int pumpOnTimeMax = 43200000; // maximum time pump should be off in ms 43,200,000 ms = 12 hours
 
 bool ok;
 bool pumpOn;
@@ -36,7 +37,7 @@ int sensorHighValue = 0;
 int sensorLastLowValue = 0;
 int sensorLastHighValue = 0;
 
-unsigned int count;
+unsigned int watchdog;
 unsigned int fiveOn;
 unsigned int fiveOff;
 
@@ -54,23 +55,24 @@ void setup() {
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
   timeOn = millis();
+  delay(2);
   timeOff = millis();
   pumpOn = 0;
 }
 
 void loop() {
-  count++;
+  watchdog++;
   // read the analog in value:
   sensorValue = analogRead(analogInPin);
   // map it to the range of the analog out:
   outputValue = map(sensorValue, 0, 1023, 0, 255);
   // change the analog out value:
   analogWrite(analogOutPin, outputValue);
-  if((throttleTime < millis()) || (count > 100000)){
+  if((throttleTime < millis()) || (watchdog > 3000)){
     ok = 1;
-    count = 0;
-    throttleTime = (millis() + 60000);
-    secondTime = (millis() + 1000);
+    watchdog = 0;
+    throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
+    secondTime = (millis() + 1000); //1,000 ms = 1 second
   }
   if(ok = 1) {
     ok = 0;
@@ -106,6 +108,17 @@ void loop() {
         fiveOff++; if(fiveOff > 4){fiveOff = 0;}
     }
   }
+  if(pumpOn = 0){
+    unsigned int pumpOffTimeCurrent;
+    pumpOffTimeCurrent = timeOff - timeOn;
+    if(pumpOffTimeCurrent > pumpOffTimeMax){
+      digitalWrite(13, HIGH);
+      pumpOn = 1;
+      timeOn = millis();
+      pumpOnTimes[fiveOn] = timeOn - timeOff;
+      fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+    }
+  }
 
   if(secondTime < millis()){
     secondTime = (millis() + 1000);
@@ -122,5 +135,7 @@ void loop() {
   // for the analog-to-digital converter to settle
   // after the last reading:
   delay(2);
+  // general delay here 
+  delay(250);
 }
 
