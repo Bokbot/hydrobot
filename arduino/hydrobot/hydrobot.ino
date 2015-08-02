@@ -25,7 +25,7 @@ const int ledPin = 13;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 const int pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
-const int pumpOnTimeMax = 43200000; // maximum time pump should be off in ms 43,200,000 ms = 12 hours
+const int pumpOffTimeMax = 43200000; // maximum time pump should be off in ms 43,200,000 ms = 12 hours
 
 bool ok;
 bool pumpOn;
