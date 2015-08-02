@@ -64,18 +64,21 @@ void loop() {
   watchdog++;
   // read the analog in value:
   sensorValue = analogRead(analogInPin);
-  // map it to the range of the analog out:
-  outputValue = map(sensorValue, 0, 1023, 0, 255);
-  // change the analog out value:
-  analogWrite(analogOutPin, outputValue);
-  if((throttleTime < millis()) || (watchdog > 3000)){
-    ok = 1;
+  directOutput(sensorValue);
+
+  ok = checkThrottle( throttleTime, watchdog );
+
+  if(ok = 1) {
+
+    ok = 0;
     watchdog = 0;
     throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
     secondTime = (millis() + 1000); //1,000 ms = 1 second
-  }
-  if(ok = 1) {
-    ok = 0;
+
+
+    // eventual functualize this next block
+    // checkSensors( sensorValue );
+    //
     if(sensorValue > 599) {
         digitalWrite(13, HIGH);
         pumpOn = 1;
@@ -119,6 +122,7 @@ void loop() {
       fiveOn++; if(fiveOn > 4){fiveOn = 0;}
     }
   }
+  // end giant block
 
   if(secondTime < millis()){
     secondTime = (millis() + 1000);
@@ -137,5 +141,24 @@ void loop() {
   delay(2);
   // general delay here 
   delay(250);
+
+} //end loop
+
+bool checkThrottle(unsigned long throttle, int dog){
+  if(throttle < millis()){
+    return 1;
+  }
+  else if(dog > 3000){
+    return 1;
+  }
+  else{
+    return 0;
+  }
 }
 
+void directOutput ( int inputValue ) {
+  // map it to the range of the analog out:
+  outputValue = map(inputValue, 0, 1023, 0, 255);
+  // change the analog out value:
+  analogWrite(analogOutPin, outputValue);
+}
