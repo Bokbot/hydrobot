@@ -72,12 +72,7 @@ void loop() {
   // Serial.print(ok);
   // Serial.println(" = ok");
 
-  if(ok == 1) {
-    Serial.print("throttleTime = ");
-    Serial.print(throttleTime);
-    Serial.print(" time = ");
-    Serial.print(millis());
-    Serial.println("skip");
+  if(ok = 1) {
 
     ok = 0;
     watchdog = 0;
@@ -89,18 +84,10 @@ void loop() {
     // checkSensors( sensorValue );
     //
     if(sensorValue > 599) {
-        digitalWrite(13, HIGH);
-        pumpOn = 1;
-        timeOn = millis();
-        pumpOnTimes[fiveOn] = timeOn - timeOff;
-        fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+      turnOnPump();
     }
     if(sensorValue < 475) {
-        digitalWrite(13, LOW);
-        pumpOn = 0;
-        timeOff = millis();
-        pumpOffTimes[fiveOff] = timeOff - timeOn;
-        fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+      turnOffPump();
     }
   }
   else {
@@ -120,41 +107,21 @@ void loop() {
     unsigned int pumpOnTimeCurrent;
     pumpOnTimeCurrent = timeOn - timeOff;
     if(pumpOnTimeCurrent > pumpOnTimeMax){
-        digitalWrite(13, LOW);
-        pumpOn = 0;
-        timeOff = millis();
-        pumpOffTimes[fiveOff] = timeOff - timeOn;
-        fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+      turnOffPump();
     }
   }
   if(pumpOn = 0){
     unsigned int pumpOffTimeCurrent;
     pumpOffTimeCurrent = timeOff - timeOn;
     if(pumpOffTimeCurrent > pumpOffTimeMax){
-      digitalWrite(13, HIGH);
-      pumpOn = 1;
-      timeOn = millis();
-      pumpOnTimes[fiveOn] = timeOn - timeOff;
-      fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+      turnOnPump();
     }
   }
   // end giant block
 
   if( secondTime < millis() ) {
     secondTime = (millis() + 1000);
-    // print the results to the serial monitor:
-    Serial.print("sensor = ");
-    Serial.print(sensorValue);
-    Serial.print(" dog = ");
-    Serial.print(watchdog);
-    Serial.print(" pumpOnTimes[fiveOn] = ");
-    Serial.print(pumpOnTimes[fiveOn]);
-    Serial.print(" pumpOffTimes[fiveOff] = ");
-    Serial.print(pumpOffTimes[fiveOff]);
-    Serial.print(" sensorHi = ");
-    Serial.print(sensorHighValue);
-    Serial.print(" sensorLo = ");
-    Serial.println(sensorLowValue);
+    printOutput();
   }
   else {
    // Serial.print("secondTime = ");
@@ -164,27 +131,19 @@ void loop() {
    // Serial.println("skip");
   }
 
-  // wait 2 milliseconds before the next loop
-  // for the analog-to-digital converter to settle
-  // after the last reading:
-  delay(2);
-  // general delay here 
-  delay(250);
+  myDelay();
 
 } //end loop
 
 bool checkThrottle(unsigned long throttle, int dog){
   if(throttle < millis()){
     return 1;
-    Serial.println("dont skip");
   }
   else if(dog > 3000){
     return 1;
-    Serial.println("dog dont skip");
   }
   else{
     return 0;
-    Serial.println("skip");
   }
 }
 
@@ -193,4 +152,45 @@ void directOutput ( int inputValue ) {
   outputValue = map(inputValue, 0, 1023, 0, 255);
   // change the analog out value:
   analogWrite(analogOutPin, outputValue);
+}
+
+void printOutput () {
+  // print the results to the serial monitor:
+  Serial.print("sensor = ");
+  Serial.print(sensorValue);
+  Serial.print(" dog = ");
+  Serial.print(watchdog);
+  Serial.print(" pumpOnTimes[fiveOn] = ");
+  Serial.print(pumpOnTimes[fiveOn]);
+  Serial.print(" pumpOffTimes[fiveOff] = ");
+  Serial.print(pumpOffTimes[fiveOff]);
+  Serial.print("sensorHi = ");
+  Serial.print(sensorHighValue);
+  Serial.print("sensorLo = ");
+  Serial.println(sensorLowValue);
+}
+
+void turnOffPump () {
+  digitalWrite(13, LOW);
+  pumpOn = 0;
+  timeOff = millis();
+  pumpOffTimes[fiveOff] = timeOff - timeOn;
+  fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+}
+
+void turnOnPump () {
+  digitalWrite(13, HIGH);
+  pumpOn = 1;
+  timeOn = millis();
+  pumpOnTimes[fiveOn] = timeOn - timeOff;
+  fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+}
+
+void myDelay () {
+  // wait 2 milliseconds before the next loop
+  // for the analog-to-digital converter to settle
+  // after the last reading:
+  delay(2);
+  // general delay here 
+  delay(250);
 }
