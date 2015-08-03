@@ -58,6 +58,8 @@ void setup() {
   delay(2);
   timeOff = millis();
   pumpOn = 0;
+  throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
+  secondTime = (millis() + 1000); //1,000 ms = 1 second
 }
 
 void loop() {
@@ -67,13 +69,20 @@ void loop() {
   directOutput(sensorValue);
 
   ok = checkThrottle( throttleTime, watchdog );
+  // Serial.print(ok);
+  // Serial.println(" = ok");
 
-  if(ok = 1) {
+  if(ok == 1) {
+    Serial.print("throttleTime = ");
+    Serial.print(throttleTime);
+    Serial.print(" time = ");
+    Serial.print(millis());
+    Serial.println("skip");
 
     ok = 0;
     watchdog = 0;
     throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
-    secondTime = (millis() + 1000); //1,000 ms = 1 second
+    // secondTime = (millis() + 1000); //1,000 ms = 1 second
 
 
     // eventual functualize this next block
@@ -93,6 +102,13 @@ void loop() {
         pumpOffTimes[fiveOff] = timeOff - timeOn;
         fiveOff++; if(fiveOff > 4){fiveOff = 0;}
     }
+  }
+  else {
+    /*Serial.print("throttleTime = ");*/
+    /*Serial.print(throttleTime);*/
+    /*Serial.print(" time = ");*/
+    /*Serial.print(millis());*/
+    /*Serial.println("skip");*/
   }
   if(sensorValue > sensorHighValue) {
     sensorHighValue = sensorValue;
@@ -124,15 +140,22 @@ void loop() {
   }
   // end giant block
 
-  if(secondTime < millis()){
+  if( secondTime < millis() ) {
     secondTime = (millis() + 1000);
     // print the results to the serial monitor:
     Serial.print("sensor = ");
     Serial.print(sensorValue);
-    Serial.print("sensorHi = ");
+    Serial.print(" sensorHi = ");
     Serial.print(sensorHighValue);
-    Serial.print("sensorLo = ");
+    Serial.print(" sensorLo = ");
     Serial.println(sensorLowValue);
+  }
+  else {
+   // Serial.print("secondTime = ");
+   // Serial.print(secondTime);
+   // Serial.print(" time = ");
+   // Serial.print(millis());
+   // Serial.println("skip");
   }
 
   // wait 2 milliseconds before the next loop
@@ -147,12 +170,15 @@ void loop() {
 bool checkThrottle(unsigned long throttle, int dog){
   if(throttle < millis()){
     return 1;
+    Serial.println("dont skip");
   }
   else if(dog > 3000){
     return 1;
+    Serial.println("dog dont skip");
   }
   else{
     return 0;
+    Serial.println("skip");
   }
 }
 
