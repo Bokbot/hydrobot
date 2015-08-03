@@ -80,18 +80,10 @@ void loop() {
     // checkSensors( sensorValue );
     //
     if(sensorValue > 599) {
-        digitalWrite(13, HIGH);
-        pumpOn = 1;
-        timeOn = millis();
-        pumpOnTimes[fiveOn] = timeOn - timeOff;
-        fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+      turnOnPump();
     }
     if(sensorValue < 475) {
-        digitalWrite(13, LOW);
-        pumpOn = 0;
-        timeOff = millis();
-        pumpOffTimes[fiveOff] = timeOff - timeOn;
-        fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+      turnOffPump();
     }
   }
   if(sensorValue > sensorHighValue) {
@@ -104,43 +96,24 @@ void loop() {
     unsigned int pumpOnTimeCurrent;
     pumpOnTimeCurrent = timeOn - timeOff;
     if(pumpOnTimeCurrent > pumpOnTimeMax){
-        digitalWrite(13, LOW);
-        pumpOn = 0;
-        timeOff = millis();
-        pumpOffTimes[fiveOff] = timeOff - timeOn;
-        fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+      turnOffPump();
     }
   }
   if(pumpOn = 0){
     unsigned int pumpOffTimeCurrent;
     pumpOffTimeCurrent = timeOff - timeOn;
     if(pumpOffTimeCurrent > pumpOffTimeMax){
-      digitalWrite(13, HIGH);
-      pumpOn = 1;
-      timeOn = millis();
-      pumpOnTimes[fiveOn] = timeOn - timeOff;
-      fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+      turnOnPump();
     }
   }
   // end giant block
 
   if(secondTime < millis()){
     secondTime = (millis() + 1000);
-    // print the results to the serial monitor:
-    Serial.print("sensor = ");
-    Serial.print(sensorValue);
-    Serial.print("sensorHi = ");
-    Serial.print(sensorHighValue);
-    Serial.print("sensorLo = ");
-    Serial.println(sensorLowValue);
+    printOutput();
   }
 
-  // wait 2 milliseconds before the next loop
-  // for the analog-to-digital converter to settle
-  // after the last reading:
-  delay(2);
-  // general delay here 
-  delay(250);
+  myDelay();
 
 } //end loop
 
@@ -161,4 +134,39 @@ void directOutput ( int inputValue ) {
   outputValue = map(inputValue, 0, 1023, 0, 255);
   // change the analog out value:
   analogWrite(analogOutPin, outputValue);
+}
+
+void printOutput () {
+  // print the results to the serial monitor:
+  Serial.print("sensor = ");
+  Serial.print(sensorValue);
+  Serial.print("sensorHi = ");
+  Serial.print(sensorHighValue);
+  Serial.print("sensorLo = ");
+  Serial.println(sensorLowValue);
+}
+
+void turnOffPump () {
+  digitalWrite(13, LOW);
+  pumpOn = 0;
+  timeOff = millis();
+  pumpOffTimes[fiveOff] = timeOff - timeOn;
+  fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+}
+
+void turnOnPump () {
+  digitalWrite(13, HIGH);
+  pumpOn = 1;
+  timeOn = millis();
+  pumpOnTimes[fiveOn] = timeOn - timeOff;
+  fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+}
+
+void myDelay () {
+  // wait 2 milliseconds before the next loop
+  // for the analog-to-digital converter to settle
+  // after the last reading:
+  delay(2);
+  // general delay here 
+  delay(250);
 }
