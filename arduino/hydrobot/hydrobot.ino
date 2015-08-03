@@ -145,6 +145,12 @@ void loop() {
     // print the results to the serial monitor:
     Serial.print("sensor = ");
     Serial.print(sensorValue);
+    Serial.print(" dog = ");
+    Serial.print(watchdog);
+    Serial.print(" pumpOnTimes[fiveOn] = ");
+    Serial.print(pumpOnTimes[fiveOn]);
+    Serial.print(" pumpOffTimes[fiveOff] = ");
+    Serial.print(pumpOffTimes[fiveOff]);
     Serial.print(" sensorHi = ");
     Serial.print(sensorHighValue);
     Serial.print(" sensorLo = ");
