@@ -57,6 +57,7 @@ void setup() {
   timeOn = millis();
   delay(2);
   timeOff = millis();
+  delay(2);
   pumpOn = 0;
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   secondTime = (millis() + 1000); //1,000 ms = 1 second
@@ -137,10 +138,10 @@ void loop() {
 } //end loop
 
 bool checkThrottle(unsigned long throttle, int dog){
-  if(throttle < millis()){
+  if( millis() > throttle ) {
     return 1;
   }
-  else if(dog > 3000){
+  else if( dog > 3000 ){
     return 1;
   }
   else{
