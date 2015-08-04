@@ -60,6 +60,7 @@ void setup() {
   pumpOn = 0;
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   secondTime = (millis() + 1000); //1,000 ms = 1 second
+  turnOnPump();
 }
 
 void loop() {
