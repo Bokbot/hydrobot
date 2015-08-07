@@ -74,7 +74,7 @@ void loop() {
   // Serial.print(ok);
   // Serial.println(" = ok");
 
-  if(ok = 1) {
+  if(ok == 1) {
 
     ok = 0;
     watchdog = 0;
@@ -105,15 +105,19 @@ void loop() {
   if(sensorValue < sensorLowValue) {
     sensorLowValue = sensorValue;
   }
-  if(pumpOn = 1){
+  if(pumpOn == 1){
     unsigned int pumpOnTimeCurrent;
+    timeOn = millis();
+    pumpOnTimes[fiveOn] = timeOn - timeOff;
     pumpOnTimeCurrent = timeOn - timeOff;
     if(pumpOnTimeCurrent > pumpOnTimeMax){
       turnOffPump();
     }
   }
-  if(pumpOn = 0){
+  if(pumpOn == 0){
     unsigned int pumpOffTimeCurrent;
+    timeOff = millis();
+    pumpOffTimes[fiveOff] = timeOff - timeOn;
     pumpOffTimeCurrent = timeOff - timeOn;
     if(pumpOffTimeCurrent > pumpOffTimeMax){
       turnOnPump();
