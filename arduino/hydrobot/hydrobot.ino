@@ -26,6 +26,8 @@ const int analogInPin = A0;  // Analog input pin that the potentiometer is attac
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 const int pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
 const int pumpOffTimeMax = 43200000; // maximum time pump should be off in ms 43,200,000 ms = 12 hours
+const int pumpOnTimeMin = 600000; // minimum time pump should be on in ms 600,000 ms = 10 minutes
+const int pumpOffTimeMin = 600000; // minimum time pump should be off in ms 600,000 ms = 10 minutes
 
 bool ok;
 bool pumpOn;
@@ -142,6 +144,18 @@ void loop() {
 } //end loop
 
 bool checkThrottle(unsigned long throttle, int dog){
+  if(pumpOn == 1){
+    pumpOnTimes[fiveOn] = timeOn - timeOff;
+    if(pumpOnTimes[fiveOn] < pumpOnTimeMin){
+      return 0;
+    }
+  }
+  if(pumpOn == 0){
+    pumpOffTimes[fiveOff] = timeOff - timeOn;
+    if(pumpOffTimes[fiveOff] < pumpOffTimeMin){
+      return 0;
+    }
+  }
   if( millis() > throttle ) {
     return 1;
   }
