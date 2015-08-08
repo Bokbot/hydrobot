@@ -133,7 +133,7 @@ void loop() {
 
   if( secondTime < millis() ) {
     secondTime = (millis() + 1000);
-  //  printOutput();
+    printOutput();
   }
   else {
    // Serial.print("secondTime = ");
@@ -180,7 +180,7 @@ void directOutput ( int inputValue ) {
 
 void printOutput () {
   // print the results to the serial monitor:
-  Serial.print("sensor = ");
+  Serial.print(" sensor = ");
   Serial.print(sensorValue);
   Serial.print(" dog = ");
   Serial.print(watchdog);
@@ -188,9 +188,9 @@ void printOutput () {
   Serial.print(pumpOnTimes[fiveOn]);
   Serial.print(" pumpOffTimes[fiveOff] = ");
   Serial.print(pumpOffTimes[fiveOff]);
-  Serial.print("sensorHi = ");
+  Serial.print(" sensorHi = ");
   Serial.print(sensorHighValue);
-  Serial.print("sensorLo = ");
+  Serial.print(" sensorLo = ");
   Serial.println(sensorLowValue);
 }
 
