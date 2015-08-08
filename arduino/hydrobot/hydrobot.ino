@@ -24,10 +24,10 @@
 const int ledPin = 13;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
-const int pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
-const int pumpOffTimeMax = 43200000; // maximum time pump should be off in ms 43,200,000 ms = 12 hours
-const int pumpOnTimeMin = 600000; // minimum time pump should be on in ms 600,000 ms = 10 minutes
-const int pumpOffTimeMin = 600000; // minimum time pump should be off in ms 600,000 ms = 10 minutes
+const unsigned long pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
+const unsigned long pumpOffTimeMax = 43200000; // maximum time pump should be off in ms 43,200,000 ms = 12 hours
+const unsigned long pumpOnTimeMin = 600000; // minimum time pump should be on in ms 600,000 ms = 10 minutes
+const unsigned long pumpOffTimeMin = 600000; // minimum time pump should be off in ms 600,000 ms = 10 minutes
 
 bool ok;
 bool pumpOn;
@@ -89,9 +89,13 @@ void loop() {
     //
     if(sensorValue > 599) {
       turnOnPump();
+      Serial.print("pumpon");
+      printOutput();
     }
     if(sensorValue < 475) {
       turnOffPump();
+      Serial.print("pumpoff");
+      printOutput();
     }
   }
   else {
@@ -108,28 +112,28 @@ void loop() {
     sensorLowValue = sensorValue;
   }
   if(pumpOn == 1){
-    unsigned int pumpOnTimeCurrent;
     timeOn = millis();
     pumpOnTimes[fiveOn] = timeOn - timeOff;
-    pumpOnTimeCurrent = timeOn - timeOff;
-    if(pumpOnTimeCurrent > pumpOnTimeMax){
+    if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
       turnOffPump();
+      Serial.print("pumpon by min");
+      printOutput();
     }
   }
   if(pumpOn == 0){
-    unsigned int pumpOffTimeCurrent;
     timeOff = millis();
     pumpOffTimes[fiveOff] = timeOff - timeOn;
-    pumpOffTimeCurrent = timeOff - timeOn;
-    if(pumpOffTimeCurrent > pumpOffTimeMax){
+    if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
       turnOnPump();
+      Serial.print("pumpon by max");
+      printOutput();
     }
   }
   // end giant block
 
   if( secondTime < millis() ) {
     secondTime = (millis() + 1000);
-    printOutput();
+  //  printOutput();
   }
   else {
    // Serial.print("secondTime = ");
