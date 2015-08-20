@@ -23,7 +23,8 @@
 // to the pins used:
 const int nudge = 3;      // how much to nudge our value forward
 const int yank = 11;      // how much to nudge our value forward
-const int ledPin = 13;      // select the pin for the LED
+const int ledPin = 7;      // select the pin for the LED
+const int relayPin = 6;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 const unsigned long pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
@@ -115,6 +116,7 @@ void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
+  pinMode(relayPin, OUTPUT);
   timeOn = millis();
   delay(2);
   timeOff = millis();
@@ -350,7 +352,7 @@ void printOutput () {
 }
 
 void turnOffPump () {
-  digitalWrite(13, LOW);
+  digitalWrite(relayPin, LOW);
   pumpOn = 0;
   timeOff = millis();
   pumpOffTimes[fiveOff] = timeOff - timeOn;
@@ -358,7 +360,7 @@ void turnOffPump () {
 }
 
 void turnOnPump () {
-  digitalWrite(13, HIGH);
+  digitalWrite(relayPin, HIGH);
   pumpOn = 1;
   timeOn = millis();
   pumpOnTimes[fiveOn] = timeOn - timeOff;
