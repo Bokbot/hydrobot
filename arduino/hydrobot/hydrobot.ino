@@ -21,6 +21,8 @@
 
 // These constants won't change.  They're used to give names
 // to the pins used:
+const int nudge = 3;      // how much to nudge our value forward
+const int yank = 11;      // how much to nudge our value forward
 const int ledPin = 13;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
@@ -33,6 +35,9 @@ bool ok;
 bool flop;
 bool pumpOn;
 
+
+int dryLimit = 599;        // this is the value of dryness we don't want to exceed
+int wetLimit = 320;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 int sensorLowValue = 1023;
@@ -203,13 +208,15 @@ void loop() {
     // eventual functualize this next block
     // checkSensors( sensorValue );
     //
-    if(sensorValue > 599) {
+    if(sensorValue > dryLimit) {
       turnOnPump();
+      dryLimit = dryLimit + nudge;
       Serial.print("pumpon");
       printOutput();
     }
-    if(sensorValue < 475) {
+    if(sensorValue < wetLimit) {
       turnOffPump();
+      wetLimit = wetLimit - nudge;
       Serial.print("pumpoff");
       printOutput();
     }
@@ -231,6 +238,7 @@ void loop() {
     timeOn = millis();
     pumpOnTimes[fiveOn] = timeOn - timeOff;
     if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
+      wetLimit = wetLimit + yank;
       turnOffPump();
       Serial.print("pumpon by min");
       printOutput();
@@ -240,6 +248,7 @@ void loop() {
     timeOff = millis();
     pumpOffTimes[fiveOff] = timeOff - timeOn;
     if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
+      dryLimit = dryLimit - yank;
       turnOnPump();
       Serial.print("pumpon by max");
       printOutput();
