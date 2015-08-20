@@ -148,52 +148,13 @@ void setup() {
   testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
   delay(1000);
 
-  // tft print function!
-  tftPrintTest();
-  delay(4000);
-
-  // a single pixel
-  tft.drawPixel(tft.width()/2, tft.height()/2, ST7735_GREEN);
-  delay(500);
-
-  // line draw test
-  testlines(ST7735_YELLOW);
-  delay(500);
-
-  // optimized lines
-  testfastlines(ST7735_RED, ST7735_BLUE);
-  delay(500);
-
-  testdrawrects(ST7735_GREEN);
-  delay(500);
-
-  testfillrects(ST7735_YELLOW, ST7735_MAGENTA);
-  delay(500);
-
-  tft.fillScreen(ST7735_BLACK);
-  testfillcircles(10, ST7735_BLUE);
-  testdrawcircles(10, ST7735_WHITE);
-  delay(500);
-
-  testroundrects();
-  delay(500);
-
-  testtriangles();
-  delay(500);
-
-  mediabuttons();
-  delay(500);
-
-  Serial.println("done");
-  delay(1000);
-  // LCD setup END
 }
 
 void loop() {
   watchdog++;
   // read the analog in value:
   sensorValue = analogRead(analogInPin);
-  directOutput(sensorValue);
+  //directOutput(sensorValue);
 
   ok = checkThrottle( throttleTime, watchdog );
   // Serial.print(ok);
@@ -259,7 +220,7 @@ void loop() {
   // end giant block
 
   if( secondTime < millis() ) {
-    secondTime = (millis() + 1000);
+    secondTime = (millis() + 5000);
     printOutput();
   }
   else {
@@ -302,7 +263,7 @@ void directOutput ( int inputValue ) {
   // map it to the range of the analog out:
   outputValue = map(inputValue, 0, 1023, 0, 255);
   // change the analog out value:
-  analogWrite(analogOutPin, outputValue);
+  //analogWrite(analogOutPin, outputValue);
 }
 
 void printOutput () {
@@ -320,34 +281,41 @@ void printOutput () {
   Serial.print(" sensorLo = ");
   Serial.println(sensorLowValue);
   if(flop) {
-    tft.invertDisplay(true);
+    //tft.invertDisplay(true);
     flop = 0;
   }
   else {
-    tft.invertDisplay(false);
+    //tft.invertDisplay(false);
     flop = 1;
   }
   // large block of text
   tft.fillScreen(ST7735_BLACK);
   tft.setCursor(0, 0);
+  tft.setTextSize(1);
   tft.setTextColor(ST7735_GREEN);
   tft.setTextWrap(true);
-  tft.print(" sensor = ");
+  tft.print(" sensor= ");
   tft.print(sensorValue);
   tft.setTextColor(ST7735_RED);
-  tft.print(" dog = ");
+  tft.print(" dog= ");
   tft.print(watchdog);
   tft.setTextColor(ST7735_BLUE);
-  tft.print(" pumpOnTimes[fiveOn] = ");
+  tft.print(" pumpOnTimes[fiveOn]= ");
   tft.print(pumpOnTimes[fiveOn]);
   tft.setTextColor(ST7735_MAGENTA);
-  tft.print(" pumpOffTimes[fiveOff] = ");
+  tft.print(" pumpOffTimes[fiveOff]= ");
   tft.print(pumpOffTimes[fiveOff]);
   tft.setTextColor(ST7735_YELLOW);
-  tft.print(" sensorHi = ");
+  tft.print(" sensorHi= ");
   tft.print(sensorHighValue);
+  tft.setTextColor(ST7735_GREEN);
+  tft.print(" dryL= ");
+  tft.print(dryLimit);
+  tft.setTextColor(ST7735_MAGENTA);
+  tft.print(" wetL= ");
+  tft.print(wetLimit);
   tft.setTextColor(ST7735_RED);
-  tft.print(" sensorLo = ");
+  tft.print(" sensorLo= ");
   tft.println(sensorLowValue);
 }
 
