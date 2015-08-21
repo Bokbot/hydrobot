@@ -19,14 +19,17 @@
 
 */
 
-// These constants won't change.  They're used to give names
-// to the pins used:
+//Constants
 const int nudge = 3;      // how much to nudge our value forward
 const int yank = 11;      // how much to nudge our value forward
+// They're used to give names
+// to the pins used:
 const int ledPin = 7;      // select the pin for the LED
 const int relayPin = 6;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
+
+// These constants won't change
 const unsigned long pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
 const unsigned long pumpOffTimeMax =28800000; // maximum time pump should be off in ms  28,800,000 ms = 8 hours
 const unsigned long pumpOnTimeMin = 600000; // minimum time pump should be on in ms 600,000 ms = 10 minutes
@@ -36,14 +39,13 @@ bool ok;
 bool flop;
 bool pumpOn;
 
-
 int dryLimit = 509;        // this is the value of dryness we don't want to exceed
-int wetLimit = 310;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
+int wetLimit = 310;        // this is the vale of wetness we don't want to go above (below wetLimit is wetter)
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
-int sensorLowValue = 1023;
+int sensorLowValue = 1024;
 int sensorHighValue = 0;
-int sensorLastLowValue = 0;
+int sensorLastLowValue = 1024;
 int sensorLastHighValue = 0;
 
 unsigned int watchdog;
@@ -290,25 +292,17 @@ void printOutput () {
   Serial.print(sensorHighValue);
   Serial.print(" sensorLo = ");
   Serial.println(sensorLowValue);
-    // And show some interesting results.
+  // And show some interesting results.
   Serial.print(" aveOn= ");
-    Serial.print("Mean:   "); Serial.println(aveOn.mean());
-    Serial.print("Mode:   "); Serial.println(aveOn.mode());
-    Serial.print("Max:    "); Serial.println(aveOn.maximum(&maxat));
-    Serial.print(" at:    "); Serial.println(maxat);
-    Serial.print("Min:    "); Serial.println(aveOn.minimum(&minat));
-    Serial.print(" at:    "); Serial.println(minat);
-    Serial.print("StdDev: "); Serial.println(aveOn.stddev());
+  Serial.print("Mean:   "); Serial.println(aveOn.mean());
+  Serial.print("Mode:   "); Serial.println(aveOn.mode());
+  Serial.print("StdDev: "); Serial.println(aveOn.stddev());
   Serial.println(' ');
-    // And show some interesting results.
+  // And show some interesting results.
   Serial.print(" aveOff= ");
-    Serial.print("Mean:   "); Serial.println(aveOff.mean());
-    Serial.print("Mode:   "); Serial.println(aveOff.mode());
-    Serial.print("Max:    "); Serial.println(aveOff.maximum(&maxat));
-    Serial.print(" at:    "); Serial.println(maxat);
-    Serial.print("Min:    "); Serial.println(aveOff.minimum(&minat));
-    Serial.print(" at:    "); Serial.println(minat);
-    Serial.print("StdDev: "); Serial.println(aveOff.stddev());
+  Serial.print("Mean:   "); Serial.println(aveOff.mean());
+  Serial.print("Mode:   "); Serial.println(aveOff.mode());
+  Serial.print("StdDev: "); Serial.println(aveOff.stddev());
   Serial.println(' ');
   if(flop) {
     tft.invertDisplay(true);
