@@ -147,6 +147,8 @@ void setup() {
   tft.fillScreen(ST7735_BLACK);
   testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
   delay(1000);
+  tft.fillScreen(ST7735_BLACK);
+  turnOffPump();
 
 }
 
@@ -289,7 +291,6 @@ void printOutput () {
     flop = 1;
   }
   // large block of text
-  tft.fillScreen(ST7735_BLACK);
   tft.setCursor(0, 0);
   tft.setTextSize(1);
   tft.setTextColor(ST7735_GREEN);
@@ -299,24 +300,26 @@ void printOutput () {
   tft.setTextColor(ST7735_RED);
   tft.print(" dog= ");
   tft.print(watchdog);
-  tft.setTextColor(ST7735_BLUE);
+  tft.setTextColor(ST7735_WHITE);
   tft.print(" pumpOnTimes[fiveOn]= ");
   tft.print(pumpOnTimes[fiveOn]);
   tft.setTextColor(ST7735_MAGENTA);
   tft.print(" pumpOffTimes[fiveOff]= ");
   tft.print(pumpOffTimes[fiveOff]);
-  tft.setTextColor(ST7735_YELLOW);
-  tft.print(" sensorHi= ");
-  tft.print(sensorHighValue);
   tft.setTextColor(ST7735_GREEN);
   tft.print(" dryL= ");
   tft.print(dryLimit);
   tft.setTextColor(ST7735_MAGENTA);
   tft.print(" wetL= ");
   tft.print(wetLimit);
+  tft.setTextColor(ST7735_YELLOW);
+  tft.print(" sensorHi= ");
+  tft.print(sensorHighValue);
   tft.setTextColor(ST7735_RED);
   tft.print(" sensorLo= ");
-  tft.println(sensorLowValue);
+  tft.print(sensorLowValue);
+  tft.setTextColor(ST7735_BLUE);
+  tft.println("  END");
 }
 
 void turnOffPump () {
