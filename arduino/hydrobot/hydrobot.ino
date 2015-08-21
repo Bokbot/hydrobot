@@ -291,6 +291,7 @@ void printOutput () {
     flop = 1;
   }
   // large block of text
+  tft.fillScreen(ST7735_BLACK);
   tft.setCursor(0, 0);
   tft.setTextSize(1);
   tft.setTextColor(ST7735_GREEN);
