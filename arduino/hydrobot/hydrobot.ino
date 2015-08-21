@@ -283,11 +283,11 @@ void printOutput () {
   Serial.print(" sensorLo = ");
   Serial.println(sensorLowValue);
   if(flop) {
-    //tft.invertDisplay(true);
+    tft.invertDisplay(true);
     flop = 0;
   }
   else {
-    //tft.invertDisplay(false);
+    tft.invertDisplay(false);
     flop = 1;
   }
   // large block of text
