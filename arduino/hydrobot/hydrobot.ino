@@ -87,7 +87,13 @@ as well as Adafruit raw 1.8" TFT display
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library
 #include <SPI.h>
+#include <Average.h>
 
+
+// Reserve space for 10 entries in the average bucket.
+// Change the type between < and > to change the entire way the library works.
+Average<unsigned long> aveOn(10);
+Average<unsigned long> aveOff(10);
 
 // For the breakout, you can use any 2 or 3 pins
 // These pins will also work for the 1.8" TFT shield
@@ -153,6 +159,8 @@ void setup() {
 }
 
 void loop() {
+  int minat = 0;
+  int maxat = 0;
   watchdog++;
   // read the analog in value:
   sensorValue = analogRead(analogInPin);
@@ -282,6 +290,26 @@ void printOutput () {
   Serial.print(sensorHighValue);
   Serial.print(" sensorLo = ");
   Serial.println(sensorLowValue);
+    // And show some interesting results.
+  Serial.print(" aveOn= ");
+    Serial.print("Mean:   "); Serial.println(aveOn.mean());
+    Serial.print("Mode:   "); Serial.println(aveOn.mode());
+    Serial.print("Max:    "); Serial.println(aveOn.maximum(&maxat));
+    Serial.print(" at:    "); Serial.println(maxat);
+    Serial.print("Min:    "); Serial.println(aveOn.minimum(&minat));
+    Serial.print(" at:    "); Serial.println(minat);
+    Serial.print("StdDev: "); Serial.println(aveOn.stddev());
+  Serial.println(' ');
+    // And show some interesting results.
+  Serial.print(" aveOff= ");
+    Serial.print("Mean:   "); Serial.println(aveOff.mean());
+    Serial.print("Mode:   "); Serial.println(aveOff.mode());
+    Serial.print("Max:    "); Serial.println(aveOff.maximum(&maxat));
+    Serial.print(" at:    "); Serial.println(maxat);
+    Serial.print("Min:    "); Serial.println(aveOff.minimum(&minat));
+    Serial.print(" at:    "); Serial.println(minat);
+    Serial.print("StdDev: "); Serial.println(aveOff.stddev());
+  Serial.println(' ');
   if(flop) {
     tft.invertDisplay(true);
     flop = 0;
@@ -297,28 +325,44 @@ void printOutput () {
   tft.setTextColor(ST7735_GREEN);
   tft.setTextWrap(true);
   tft.print(" sensor= ");
-  tft.print(sensorValue);
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(sensorValue);
   tft.setTextColor(ST7735_RED);
   tft.print(" dog= ");
-  tft.print(watchdog);
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(watchdog);
   tft.setTextColor(ST7735_WHITE);
   tft.print(" pumpOnTimes[fiveOn]= ");
+  tft.setTextColor(ST7735_WHITE);
   tft.print(pumpOnTimes[fiveOn]);
   tft.setTextColor(ST7735_MAGENTA);
   tft.print(" pumpOffTimes[fiveOff]= ");
-  tft.print(pumpOffTimes[fiveOff]);
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(pumpOffTimes[fiveOff]);
   tft.setTextColor(ST7735_GREEN);
   tft.print(" dryL= ");
+  tft.setTextColor(ST7735_WHITE);
   tft.print(dryLimit);
   tft.setTextColor(ST7735_MAGENTA);
   tft.print(" wetL= ");
-  tft.print(wetLimit);
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(wetLimit);
   tft.setTextColor(ST7735_YELLOW);
   tft.print(" sensorHi= ");
+  tft.setTextColor(ST7735_WHITE);
   tft.print(sensorHighValue);
   tft.setTextColor(ST7735_RED);
   tft.print(" sensorLo= ");
-  tft.print(sensorLowValue);
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(sensorLowValue);
+  tft.setTextColor(ST7735_RED);
+  tft.print(" aveOn= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.print(aveOn.mean());
+  tft.setTextColor(ST7735_RED);
+  tft.print(" aveOff= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.print(aveOff.mean());
   tft.setTextColor(ST7735_BLUE);
   tft.println("  END");
 }
@@ -329,6 +373,8 @@ void turnOffPump () {
   timeOff = millis();
   pumpOffTimes[fiveOff] = timeOff - timeOn;
   fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+  //push new off time to the avg
+  aveOff.push(pumpOffTimes[fiveOff]);
 }
 
 void turnOnPump () {
@@ -337,6 +383,8 @@ void turnOnPump () {
   timeOn = millis();
   pumpOnTimes[fiveOn] = timeOn - timeOff;
   fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+  //push new on time to the avg
+  aveOn.push(pumpOnTimes[fiveOn]);
 }
 
 void myDelay () {
