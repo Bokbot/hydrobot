@@ -28,7 +28,7 @@ const int relayPin = 6;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 const unsigned long pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
-const unsigned long pumpOffTimeMax = 43200000; // maximum time pump should be off in ms 43,200,000 ms = 12 hours
+const unsigned long pumpOffTimeMax =28800000; // maximum time pump should be off in ms  28,800,000 ms = 8 hours
 const unsigned long pumpOnTimeMin = 600000; // minimum time pump should be on in ms 600,000 ms = 10 minutes
 const unsigned long pumpOffTimeMin = 600000; // minimum time pump should be off in ms 600,000 ms = 10 minutes
 
@@ -37,8 +37,8 @@ bool flop;
 bool pumpOn;
 
 
-int dryLimit = 599;        // this is the value of dryness we don't want to exceed
-int wetLimit = 320;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
+int dryLimit = 509;        // this is the value of dryness we don't want to exceed
+int wetLimit = 310;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 int sensorLowValue = 1023;
