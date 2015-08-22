@@ -353,6 +353,14 @@ void printOutput () {
   tft.print("aveOff= ");
   tft.setTextColor(ST7735_WHITE);
   tft.print(aveOff.mean());
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("countOn= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(countdownOn());
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("countOff= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.print(countdownOff());
   tft.setTextColor(ST7735_BLUE);
   tft.println("  END");
 }
@@ -365,6 +373,14 @@ void turnOffPump () {
   fiveOff++; if(fiveOff > 4){fiveOff = 0;}
   //push new off time to the avg
   aveOff.push(pumpOffTimes[fiveOff]);
+}
+
+unsigned long countdownOn() {
+  return pumpOnTimeMax - timeOn;
+}
+
+unsigned long countdownOff() {
+  return pumpOffTimeMax - timeOff;
 }
 
 void turnOnPump () {
