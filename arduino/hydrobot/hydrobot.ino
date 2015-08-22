@@ -39,8 +39,8 @@ bool ok;
 bool flop;
 bool pumpOn;
 
-int dryLimit = 509;        // this is the value of dryness we don't want to exceed
-int wetLimit = 310;        // this is the vale of wetness we don't want to go above (below wetLimit is wetter)
+int dryLimit = 923;        // this is the value of dryness we don't want to exceed
+int wetLimit = 128;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 int sensorLowValue = 1024;
@@ -213,7 +213,7 @@ void loop() {
     timeOn = millis();
     pumpOnTimes[fiveOn] = timeOn - timeOff;
     if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
-      wetLimit = wetLimit + yank;
+      wetLimit = wetLimit + yank + ( 0.5 * (sensorValue - wetLimit));
       turnOffPump();
       Serial.print("pumpon by min");
       printOutput();
@@ -223,7 +223,7 @@ void loop() {
     timeOff = millis();
     pumpOffTimes[fiveOff] = timeOff - timeOn;
     if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
-      dryLimit = dryLimit - yank;
+      dryLimit = dryLimit - yank + ( 0.5 * (dryLimit - sensorValue));
       turnOnPump();
       Serial.print("pumpon by max");
       printOutput();
