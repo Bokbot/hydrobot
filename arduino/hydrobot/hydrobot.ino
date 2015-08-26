@@ -18,6 +18,22 @@
   This example code is in the public domain.
 
 */
+//PID section
+#include <PID_v1.h>
+
+#define PIN_INPUT 0
+#define RELAY_PIN 6
+
+//Define Variables we'll be connecting to
+double Setpoint, Input, Output;
+
+//Specify the links and initial tuning parameters
+double Kp=2, Ki=5, Kd=1;
+PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+
+int WindowSize = 5000;
+unsigned long windowStartTime;
+//PID section END
 
 //Constants
 const int nudge = 3;      // how much to nudge our value forward
@@ -38,6 +54,7 @@ const unsigned long pumpOffTimeMin = 600000; // minimum time pump should be off 
 bool ok;
 bool flop;
 bool pumpOn;
+bool PIDpumpOn;
 
 int dryLimit = 923;        // this is the value of dryness we don't want to exceed
 int wetLimit = 128;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
@@ -157,10 +174,43 @@ void setup() {
   delay(1000);
   tft.fillScreen(ST7735_BLACK);
   turnOffPump();
+  // PID start
+  windowStartTime = millis();
 
+  //initialize the variables we're linked to
+  Setpoint = 100;
+
+  //tell the PID to range between 0 and the full window size
+  myPID.SetOutputLimits(0, WindowSize);
+
+  //turn the PID on
+  myPID.SetMode(AUTOMATIC);
+  // PID end
 }
 
 void loop() {
+
+  // PID start
+  Input = analogRead(PIN_INPUT);
+  myPID.Compute();
+
+  /************************************************
+   * turn the output pin on/off based on pid output
+   ************************************************/
+  if (millis() - windowStartTime > WindowSize)
+  { //time to shift the Relay Window
+    windowStartTime += WindowSize;
+  }
+  if (Output < millis() - windowStartTime) {
+  //  digitalWrite(RELAY_PIN, HIGH);
+     PIDpumpOn = 1;
+  }
+  else {
+  //  digitalWrite(RELAY_PIN, LOW);
+     PIDpumpOn = 0;
+  }
+  // PID end
+
   int minat = 0;
   int maxat = 0;
   watchdog++;
@@ -353,8 +403,10 @@ void printOutput () {
   tft.print("aveOff= ");
   tft.setTextColor(ST7735_WHITE);
   tft.print(aveOff.mean());
-  tft.setTextColor(ST7735_BLUE);
-  tft.println("  END");
+  tft.setTextColor(ST7735_MAGENTA);
+  tft.print("PIDpumpOn= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(PIDpumpOn);
 }
 
 void turnOffPump () {
