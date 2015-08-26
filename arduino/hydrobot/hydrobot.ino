@@ -405,14 +405,16 @@ void printOutput () {
   tft.print(aveOff.mean());
   tft.setTextColor(ST7735_GREEN);
   tft.print("countOn= ");
-  tft.setTextColor(ST7735_MAGENTA);
-  tft.print("PIDpumpOn= ");
   tft.setTextColor(ST7735_WHITE);
   tft.println(countdownOn());
   tft.setTextColor(ST7735_GREEN);
   tft.print("countOff= ");
   tft.setTextColor(ST7735_WHITE);
-  tft.print(countdownOff());
+  tft.println(countdownOff());
+  tft.setTextColor(ST7735_MAGENTA);
+  tft.print("PIDpumpOn= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.print(PIDpumpOn);
 }
 
 void turnOffPump () {
