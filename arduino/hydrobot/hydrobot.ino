@@ -46,10 +46,10 @@ const int analogInPin = A0;  // Analog input pin that the potentiometer is attac
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
 // These constants won't change
-const unsigned long pumpOnTimeMax = 1800000; // maximum time pump should be on in ms 1,800,000 ms = 30 minutes
-const unsigned long pumpOffTimeMax =28800000; // maximum time pump should be off in ms  28,800,000 ms = 8 hours
-const unsigned long pumpOnTimeMin = 600000; // minimum time pump should be on in ms 600,000 ms = 10 minutes
-const unsigned long pumpOffTimeMin = 600000; // minimum time pump should be off in ms 600,000 ms = 10 minutes
+const unsigned long pumpOnTimeMax = 1800000; // maximum time pump should be on in ms: 1,800,000 ms = 30 minutes
+const unsigned long pumpOnTimeMin = 540000; // minimum time pump should be on in ms: 540,000 ms = 9 minutes
+const unsigned long pumpOffTimeMax = 32400000; // maximum time pump should be off in ms:  32,400,000 ms = 9 hours
+const unsigned long pumpOffTimeMin = 5400000; // minimum time pump should be off in ms: 5,400,000 ms = 90 minutes
 
 bool ok;
 bool flop;
@@ -170,9 +170,9 @@ void setup() {
 
   // large block of text
   tft.fillScreen(ST7735_BLACK);
-  testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
-  delay(1000);
-  tft.fillScreen(ST7735_BLACK);
+  // testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
+  // delay(1000);
+  // tft.fillScreen(ST7735_BLACK);
   turnOffPump();
   // PID start
   windowStartTime = millis();
@@ -235,13 +235,15 @@ void loop() {
     //
     if(sensorValue > dryLimit) {
       turnOnPump();
-      dryLimit = dryLimit + nudge;
+      // dryLimit = dryLimit + nudge;
+      dryLimit = dryLimit + nudge + ( 0.25 * (sensorValue - dryLimit));
       Serial.print("pumpon");
       printOutput();
     }
     if(sensorValue < wetLimit) {
       turnOffPump();
-      wetLimit = wetLimit - nudge;
+      // wetLimit = wetLimit - nudge;
+      wetLimit = wetLimit - nudge - ( 0.25 * (wetLimit - sensorValue));
       Serial.print("pumpoff");
       printOutput();
     }
