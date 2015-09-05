@@ -56,14 +56,19 @@ bool flop;
 bool pumpOn;
 bool PIDpumpOn;
 
-int dryLimit = 923;        // this is the value of dryness we don't want to exceed
-int wetLimit = 128;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
+int dryLimit = 655;        // this is the value of dryness we don't want to exceed
+int wetLimit = 420;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 int sensorLowValue = 1024;
 int sensorHighValue = 0;
 int sensorLastLowValue = 1024;
 int sensorLastHighValue = 0;
+int backgroundColor = 0;
+int foregroundColor = 0;
+
+unsigned int countZero = 0;
+unsigned int pumpOnCount = 0;
 
 unsigned int watchdog;
 unsigned int fiveOn;
@@ -173,7 +178,7 @@ void setup() {
   // testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
   // delay(1000);
   // tft.fillScreen(ST7735_BLACK);
-  turnOffPump();
+  // turnOffPump();
   // PID start
   windowStartTime = millis();
 
@@ -275,7 +280,7 @@ void loop() {
     timeOff = millis();
     pumpOffTimes[fiveOff] = timeOff - timeOn;
     if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
-      dryLimit = dryLimit - yank + ( 0.5 * (dryLimit - sensorValue));
+      dryLimit = dryLimit - yank - ( 0.5 * (dryLimit - sensorValue));
       turnOnPump();
       Serial.print("pumpon by max");
       printOutput();
@@ -359,10 +364,15 @@ void printOutput () {
   if(flop) {
     tft.invertDisplay(true);
     flop = 0;
+    countZero++;
   }
   else {
     tft.invertDisplay(false);
     flop = 1;
+  }
+  if(countZero = 0){
+   backgroundColor = ST7735_BLACK;
+   foregroundColor = ST7735_WHITE;
   }
   // large block of text
   tft.fillScreen(ST7735_BLACK);
@@ -404,7 +414,7 @@ void printOutput () {
   tft.setTextColor(ST7735_RED);
   tft.print("aveOff= ");
   tft.setTextColor(ST7735_WHITE);
-  tft.print(aveOff.mean());
+  tft.println(aveOff.mean());
   tft.setTextColor(ST7735_GREEN);
   tft.print("countOn= ");
   tft.setTextColor(ST7735_WHITE);
@@ -413,6 +423,14 @@ void printOutput () {
   tft.print("countOff= ");
   tft.setTextColor(ST7735_WHITE);
   tft.println(countdownOff());
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("onCountMin= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(onCountMin());
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("pumpOnCount= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(pumpOnCount);
   tft.setTextColor(ST7735_MAGENTA);
   tft.print("PIDpumpOn= ");
   tft.setTextColor(ST7735_WHITE);
@@ -429,16 +447,23 @@ void turnOffPump () {
   aveOff.push(pumpOffTimes[fiveOff]);
 }
 
-unsigned long countdownOn() {
-  return pumpOnTimeMax - timeOn;
+float countdownOn() {
+  //output in minutes
+  return ((float)(pumpOnTimeMax - pumpOnTimes[fiveOn] ) / (60000));
 }
 
-unsigned long countdownOff() {
-  return pumpOffTimeMax - timeOff;
+float countdownOff() {
+  //output in minutes
+  return ((float)(pumpOffTimeMax - pumpOffTimes[fiveOff] ) / (60000));
+}
+
+unsigned long onCountMin() {
+  return pumpOnTimeMin - timeOn;
 }
 
 void turnOnPump () {
   digitalWrite(relayPin, HIGH);
+  pumpOnCount++;
   pumpOn = 1;
   timeOn = millis();
   pumpOnTimes[fiveOn] = timeOn - timeOff;
