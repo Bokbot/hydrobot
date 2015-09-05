@@ -116,8 +116,8 @@ as well as Adafruit raw 1.8" TFT display
 
 // Reserve space for 10 entries in the average bucket.
 // Change the type between < and > to change the entire way the library works.
-Average<unsigned long> aveOn(10);
-Average<unsigned long> aveOff(10);
+Average<float> aveOn(10);
+Average<float> aveOff(10);
 
 // For the breakout, you can use any 2 or 3 pins
 // These pins will also work for the 1.8" TFT shield
@@ -444,7 +444,7 @@ void turnOffPump () {
   pumpOffTimes[fiveOff] = timeOff - timeOn;
   fiveOff++; if(fiveOff > 4){fiveOff = 0;}
   //push new off time to the avg
-  aveOff.push(pumpOffTimes[fiveOff]);
+  aveOff.push(returnMinutes(pumpOffTimes[fiveOff]));
 }
 
 float countdownOn() {
@@ -469,7 +469,7 @@ void turnOnPump () {
   pumpOnTimes[fiveOn] = timeOn - timeOff;
   fiveOn++; if(fiveOn > 4){fiveOn = 0;}
   //push new on time to the avg
-  aveOn.push(pumpOnTimes[fiveOn]);
+  aveOn.push(returnMinutes(pumpOnTimes[fiveOn]));
 }
 
 void myDelay () {
@@ -660,4 +660,9 @@ void mediabuttons() {
   tft.fillRoundRect(69, 98, 20, 45, 5, ST7735_RED);
   // play color
   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_GREEN);
+}
+
+float returnMinutes( unsigned long ms ) {
+ float msf = (0.00001666666 * float( ms  ));
+ return msf;
 }
