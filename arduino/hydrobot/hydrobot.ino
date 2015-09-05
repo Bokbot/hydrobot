@@ -191,6 +191,7 @@ void setup() {
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
   // PID end
+
 }
 
 void loop() {
@@ -305,22 +306,32 @@ void loop() {
 } //end loop
 
 bool checkThrottle(unsigned long throttle, int dog){
+  // if the pump is on
   if(pumpOn == 1){
+  // calculate how long the pump is on
     pumpOnTimes[fiveOn] = timeOn - timeOff;
+    // if the pump on time is less than the minimum pump on time
     if(pumpOnTimes[fiveOn] < pumpOnTimeMin){
+    // return zero or 'not ok'
       return 0;
     }
   }
+  // if the pump is off
   if(pumpOn == 0){
+  // calculate how long the pump has been off
     pumpOffTimes[fiveOff] = timeOff - timeOn;
+    // if the pump off time is less than the minimum pump off time
     if(pumpOffTimes[fiveOff] < pumpOffTimeMin){
+    // return zero or 'not ok'
       return 0;
     }
   }
   if( millis() > throttle ) {
+    // return one or 'ok'
     return 1;
   }
   else if( dog > 3000 ){
+    // return one or 'ok'
     return 1;
   }
   else{
@@ -442,9 +453,9 @@ void turnOffPump () {
   pumpOn = 0;
   timeOff = millis();
   pumpOffTimes[fiveOff] = timeOff - timeOn;
-  fiveOff++; if(fiveOff > 4){fiveOff = 0;}
   //push new off time to the avg
   aveOff.push(returnMinutes(pumpOffTimes[fiveOff]));
+  fiveOff++; if(fiveOff > 4){fiveOff = 0;}
 }
 
 float countdownOn() {
@@ -467,9 +478,9 @@ void turnOnPump () {
   pumpOn = 1;
   timeOn = millis();
   pumpOnTimes[fiveOn] = timeOn - timeOff;
-  fiveOn++; if(fiveOn > 4){fiveOn = 0;}
   //push new on time to the avg
   aveOn.push(returnMinutes(pumpOnTimes[fiveOn]));
+  fiveOn++; if(fiveOn > 4){fiveOn = 0;}
 }
 
 void myDelay () {
