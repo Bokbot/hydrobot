@@ -454,7 +454,7 @@ void turnOffPump () {
   timeOff = millis();
   pumpOffTimes[fiveOff] = timeOff - timeOn;
   //push new off time to the avg
-  aveOff.push(returnMinutes(pumpOffTimes[fiveOff]));
+  aveOff.push(countdownOff());
   fiveOff++; if(fiveOff > 4){fiveOff = 0;}
 }
 
@@ -480,6 +480,7 @@ void turnOnPump () {
   pumpOnTimes[fiveOn] = timeOn - timeOff;
   //push new on time to the avg
   aveOn.push(returnMinutes(pumpOnTimes[fiveOn]));
+  aveOn.push(countdownOn());
   fiveOn++; if(fiveOn > 4){fiveOn = 0;}
 }
 
@@ -671,9 +672,4 @@ void mediabuttons() {
   tft.fillRoundRect(69, 98, 20, 45, 5, ST7735_RED);
   // play color
   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_GREEN);
-}
-
-float returnMinutes( unsigned long ms ) {
- float msf = (0.00001666666 * float( ms  ));
- return msf;
 }
