@@ -448,16 +448,6 @@ void printOutput () {
   tft.print(PIDpumpOn);
 }
 
-void turnOffPump () {
-  digitalWrite(relayPin, LOW);
-  pumpOn = 0;
-  timeOff = millis();
-  pumpOffTimes[fiveOff] = timeOff - timeOn;
-  //push new off time to the avg
-  aveOff.push(countdownOff());
-  fiveOff++; if(fiveOff > 4){fiveOff = 0;}
-}
-
 float countdownOn() {
   //output in minutes
   return ((float)(pumpOnTimeMax - pumpOnTimes[fiveOn] ) / (60000));
@@ -479,9 +469,20 @@ void turnOnPump () {
   timeOn = millis();
   pumpOnTimes[fiveOn] = timeOn - timeOff;
   //push new on time to the avg
-  aveOn.push(returnMinutes(pumpOnTimes[fiveOn]));
-  aveOn.push(countdownOn());
+  // aveOn.push((float)(pumpOnTimes[fiveOn] ) / (60000));
+  aveOn.push((float)(pumpOnTimes[fiveOn]));
   fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+}
+
+void turnOffPump () {
+  digitalWrite(relayPin, LOW);
+  pumpOn = 0;
+  timeOff = millis();
+  pumpOffTimes[fiveOff] = timeOff - timeOn;
+  //push new off time to the avg
+  // aveOff.push((float)(pumpOffTimes[fiveOff] ) / (60000));
+  aveOff.push((float)(pumpOffTimes[fiveOff]));
+  fiveOff++; if(fiveOff > 4){fiveOff = 0;}
 }
 
 void myDelay () {
