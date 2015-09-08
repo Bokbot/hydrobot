@@ -31,7 +31,7 @@ double Setpoint, Input, Output;
 double Kp=2, Ki=5, Kd=1;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
-int WindowSize = 5000;
+int WindowSize = 30000; // 30 seconds = 30,000 ms
 unsigned long windowStartTime;
 //PID section END
 
@@ -155,6 +155,8 @@ void setup() {
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   secondTime = (millis() + 1000); //1,000 ms = 1 second
   turnOnPump();
+  delay(1000);
+  turnOffPump();
   // LCD setup START
   Serial.print("Hello! ST7735 TFT Test");
 
@@ -179,11 +181,12 @@ void setup() {
   // delay(1000);
   // tft.fillScreen(ST7735_BLACK);
   // turnOffPump();
+
   // PID start
   windowStartTime = millis();
 
   //initialize the variables we're linked to
-  Setpoint = 100;
+  Setpoint = 512;
 
   //tell the PID to range between 0 and the full window size
   myPID.SetOutputLimits(0, WindowSize);
@@ -442,6 +445,10 @@ void printOutput () {
   tft.print("pumpOnCount= ");
   tft.setTextColor(ST7735_WHITE);
   tft.println(pumpOnCount);
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("PIDoutput= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(Output);
   tft.setTextColor(ST7735_MAGENTA);
   tft.print("PIDpumpOn= ");
   tft.setTextColor(ST7735_WHITE);
@@ -467,22 +474,21 @@ void turnOnPump () {
   pumpOnCount++;
   pumpOn = 1;
   timeOn = millis();
-  pumpOnTimes[fiveOn] = timeOn - timeOff;
-  //push new on time to the avg
-  // aveOn.push((float)(pumpOnTimes[fiveOn] ) / (60000));
-  aveOn.push((float)(pumpOnTimes[fiveOn]));
-  fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+  pumpOffTimes[fiveOff] = timeOn - timeOff;
+  //push new off time to the avg
+  aveOff.push((float)(pumpOffTimes[fiveOff] ) / (60000));
+  //aveOff.push((float)(pumpOffTimes[fiveOff]));
+  fiveOff++; if(fiveOff > 4){fiveOff = 0;}
 }
 
 void turnOffPump () {
   digitalWrite(relayPin, LOW);
   pumpOn = 0;
   timeOff = millis();
-  pumpOffTimes[fiveOff] = timeOff - timeOn;
-  //push new off time to the avg
-  // aveOff.push((float)(pumpOffTimes[fiveOff] ) / (60000));
-  aveOff.push((float)(pumpOffTimes[fiveOff]));
-  fiveOff++; if(fiveOff > 4){fiveOff = 0;}
+  pumpOnTimes[fiveOn] = timeOff - timeOn;
+  //push new on time to the avg
+  aveOn.push((float)(pumpOnTimes[fiveOn] ) / (60000));
+  fiveOn++; if(fiveOn > 4){fiveOn = 0;}
 }
 
 void myDelay () {
