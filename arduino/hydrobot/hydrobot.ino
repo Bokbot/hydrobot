@@ -37,7 +37,7 @@ unsigned long windowStartTime;
 
 //Constants
 const int nudge = 3;      // how much to nudge our value forward
-const int yank = 11;      // how much to nudge our value forward
+const int yank = 11;      // how much to yank our value back
 // They're used to give names
 // to the pins used:
 const int ledPin = 7;      // select the pin for the LED
@@ -50,14 +50,15 @@ const unsigned long pumpOnTimeMax = 1800000; // maximum time pump should be on i
 const unsigned long pumpOnTimeMin = 540000; // minimum time pump should be on in ms: 540,000 ms = 9 minutes
 const unsigned long pumpOffTimeMax = 32400000; // maximum time pump should be off in ms:  32,400,000 ms = 9 hours
 const unsigned long pumpOffTimeMin = 5400000; // minimum time pump should be off in ms: 5,400,000 ms = 90 minutes
+const unsigned long lcdInterval = 5000; // lcd refresh interval in ms: 5,000 ms = 5 seconds
 
 bool ok;
 bool flop;
 bool pumpOn;
 bool PIDpumpOn;
 
-int dryLimit = 655;        // this is the value of dryness we don't want to exceed
-int wetLimit = 420;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
+int dryLimit = 855;        // this is the value of dryness we don't want to exceed
+int wetLimit = 220;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 int sensorLowValue = 1024;
@@ -79,6 +80,8 @@ unsigned long timeOn;
 unsigned long timeOff;
 unsigned long secondTime;
 unsigned long throttleTime;
+unsigned long divideTime;
+unsigned long multiplyTime;
 
 unsigned long pumpOnTimes[5];
 unsigned long pumpOffTimes[5];
@@ -155,8 +158,10 @@ void setup() {
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   secondTime = (millis() + 1000); //1,000 ms = 1 second
   turnOnPump();
-  delay(1000);
-  turnOffPump();
+  //delay(1000);
+  //turnOffPump();
+  //delay(1000);
+  //turnOnPump();
   // LCD setup START
   Serial.print("Hello! ST7735 TFT Test");
 
@@ -293,7 +298,7 @@ void loop() {
   // end giant block
 
   if( secondTime < millis() ) {
-    secondTime = (millis() + 5000);
+    secondTime = (millis() + lcdInterval);
     printOutput();
   }
   else {
@@ -449,6 +454,13 @@ void printOutput () {
   tft.print("PIDoutput= ");
   tft.setTextColor(ST7735_WHITE);
   tft.println(Output);
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("MultiplyTime= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(multiplyTime);
+  tft.print("DivideTime= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(divideTime);
   tft.setTextColor(ST7735_MAGENTA);
   tft.print("PIDpumpOn= ");
   tft.setTextColor(ST7735_WHITE);
@@ -476,7 +488,10 @@ void turnOnPump () {
   timeOn = millis();
   pumpOffTimes[fiveOff] = timeOn - timeOff;
   //push new off time to the avg
-  aveOff.push((float)(pumpOffTimes[fiveOff] ) / (60000));
+  //aveOff.push(((float)(pumpOffTimes[fiveOff] )) * (0.00001666666));
+  now = micros();
+  aveOff.push(((float)(pumpOffTimes[fiveOff] )) / (1000));
+  divideTime = micros() - now;
   //aveOff.push((float)(pumpOffTimes[fiveOff]));
   fiveOff++; if(fiveOff > 4){fiveOff = 0;}
 }
@@ -487,7 +502,11 @@ void turnOffPump () {
   timeOff = millis();
   pumpOnTimes[fiveOn] = timeOff - timeOn;
   //push new on time to the avg
-  aveOn.push((float)(pumpOnTimes[fiveOn] ) / (60000));
+  //aveOn.push((float)(pumpOnTimes[fiveOn] ) / (60000));
+  //aveOn.push(((float)(pumpOnTimes[fiveOn] )) * (0.00001666666));
+  now = micros();
+  aveOn.push(((float)(pumpOnTimes[fiveOn] )) * (0.001));
+  multiplyTime = micros() - now;
   fiveOn++; if(fiveOn > 4){fiveOn = 0;}
 }
 
