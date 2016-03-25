@@ -458,7 +458,7 @@ void printOutput () {
   Serial.print(humidity, 1);
   Serial.println(" ");
   Serial.print("DHT1122-Celsius ");
-  Serial.print(temperature);
+  Serial.print(dht.getTemperature(), 1);
   Serial.println(" ");
   Serial.print("DHT1122-Fahrenheit ");
   Serial.print(dht.toFahrenheit(temperature), 1);
