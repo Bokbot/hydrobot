@@ -158,10 +158,6 @@ void setup() {
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   secondTime = (millis() + 1000); //1,000 ms = 1 second
   turnOnPump();
-  //delay(1000);
-  //turnOffPump();
-  //delay(1000);
-  //turnOnPump();
   // LCD setup START
   Serial.print("Hello! ST7735 TFT Test");
 
@@ -199,6 +195,20 @@ void setup() {
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
   // PID end
+
+  turnOffPump();
+  delay(1000);
+  turnOnPump();
+  delay(1000);
+  turnOnPump();
+  delay(1000);
+  turnOffPump();
+  delay(1000);
+  turnOnPump();
+  delay(1000);
+  turnOffPump();
+  delay(1000);
+  turnOffPump();
 
 }
 
@@ -369,13 +379,13 @@ void printOutput () {
   Serial.print(" sensorLo = ");
   Serial.println(sensorLowValue);
   // And show some interesting results.
-  Serial.print(" aveOn= ");
+  Serial.print(' avg On= ');
   Serial.print("Mean:   "); Serial.println(aveOn.mean());
   Serial.print("Mode:   "); Serial.println(aveOn.mode());
   Serial.print("StdDev: "); Serial.println(aveOn.stddev());
   Serial.println(' ');
   // And show some interesting results.
-  Serial.print(" aveOff= ");
+  Serial.print(' avg Off eq  ');
   Serial.print("Mean:   "); Serial.println(aveOff.mean());
   Serial.print("Mode:   "); Serial.println(aveOff.mode());
   Serial.print("StdDev: "); Serial.println(aveOff.stddev());
@@ -427,11 +437,11 @@ void printOutput () {
   tft.setTextColor(ST7735_WHITE);
   tft.println(sensorLowValue);
   tft.setTextColor(ST7735_RED);
-  tft.print("aveOn= ");
+  tft.print("avg On eq  ");
   tft.setTextColor(ST7735_WHITE);
   tft.println(aveOn.mean());
   tft.setTextColor(ST7735_RED);
-  tft.print("aveOff= ");
+  tft.print("avg Off eq ");
   tft.setTextColor(ST7735_WHITE);
   tft.println(aveOff.mean());
   tft.setTextColor(ST7735_GREEN);
@@ -485,8 +495,8 @@ void turnOnPump () {
   digitalWrite(relayPin, HIGH);
   pumpOnCount++;
   pumpOn = 1;
-  timeOn = millis();
-  pumpOffTimes[fiveOff] = timeOn - timeOff;
+  timeOff = millis();
+  pumpOffTimes[fiveOff] = timeOff - timeOn;
   //push new off time to the avg
   //aveOff.push(((float)(pumpOffTimes[fiveOff] )) * (0.00001666666));
   now = micros();
@@ -499,15 +509,17 @@ void turnOnPump () {
 void turnOffPump () {
   digitalWrite(relayPin, LOW);
   pumpOn = 0;
-  timeOff = millis();
-  pumpOnTimes[fiveOn] = timeOff - timeOn;
+  timeOn = millis();
+  pumpOnTimes[fiveOn] = timeOn - timeOff;
   //push new on time to the avg
   //aveOn.push((float)(pumpOnTimes[fiveOn] ) / (60000));
   //aveOn.push(((float)(pumpOnTimes[fiveOn] )) * (0.00001666666));
   now = micros();
   aveOn.push(((float)(pumpOnTimes[fiveOn] )) * (0.001));
+  //aveOn.push(((float)(pumpOnTimes[fiveOn] )));
   multiplyTime = micros() - now;
   fiveOn++; if(fiveOn > 4){fiveOn = 0;}
+  timeOff = millis();
 }
 
 void myDelay () {
