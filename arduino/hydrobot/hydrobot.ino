@@ -20,6 +20,7 @@
 */
 #include "DHT.h"
 const int DHT_PIN = 2; // digital pin 2
+dht DHT;
 
 //PID section
 #include <PID_v1.h>
@@ -428,8 +429,8 @@ void directOutput ( int inputValue ) {
 
 void printOutput () {
   // ardushipper 
-  Serial.print("DHT1122-DHTstatus ");
-  Serial.print(dht.getStatusString());
+  //Serial.print("DHT1122-DHTstatus ");
+  //Serial.print(DHT.getStatusString());
   Serial.println(" ");
   Serial.print("DHT1122-Moisture ");
   Serial.print(" Moisture1 ");
@@ -445,11 +446,11 @@ void printOutput () {
   Serial.print(humidity, 1);
   Serial.println(" ");
   Serial.print("DHT1122-Celsius ");
-  Serial.print(temperature, 1);
+  Serial.print(DHT.read22(DHT_PIN));
   Serial.println(" ");
-  Serial.print("DHT1122-Fahrenheit ");
-  Serial.print(dht.toFahrenheit(temperature), 1);
-  Serial.println(" ");
+  //Serial.print("DHT1122-Fahrenheit ");
+  //Serial.print(DHT.toFahrenheit(temperature), 1);
+  //Serial.println(" ");
   Serial.println("3478-ENDTRANSMISSION");
   // print the results to the serial monitor:
   Serial.print(" sensor = ");
@@ -566,11 +567,10 @@ void printOutput () {
 // LCD init END
 
 void setup() {
-  DHT dht;
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
   // temperature sensor setup
-  dht.setup(DHT_PIN); // data pin
+  //dht.setup(DHT_PIN); // data pin
   pinMode(ledPin, OUTPUT);
   pinMode(relayPin3, OUTPUT);
   timeOn = millis();
