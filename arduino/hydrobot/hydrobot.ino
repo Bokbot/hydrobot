@@ -1,4 +1,4 @@
-
+/*
   Analog input, analog output, serial output
 
   Reads an analog input pin, maps the result to a range from 0 to 255
