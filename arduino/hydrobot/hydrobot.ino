@@ -166,8 +166,8 @@ void turnOnPump () {
   digitalWrite(relayPin3, HIGH);
   pumpOnCount++;
   pumpOn = 1;
-  timeOn = millis();
-  pumpOffTimes[fiveOff] = timeOn - timeOff;
+  timeOff = millis();
+  pumpOffTimes[fiveOff] = timeOff - timeOn;
   //push new off time to the avg
   //aveOff.push(((float)(pumpOffTimes[fiveOff] )) * (0.00001666666));
   now = micros();
@@ -180,8 +180,8 @@ void turnOnPump () {
 void turnOffPump () {
   digitalWrite(relayPin3, LOW);
   pumpOn = 0;
-  timeOff = millis();
-  pumpOnTimes[fiveOn] = timeOff - timeOn;
+  timeOn = millis();
+  pumpOnTimes[fiveOn] = timeOn - timeOff;
   //push new on time to the avg
   //aveOn.push((float)(pumpOnTimes[fiveOn] ) / (60000));
   //aveOn.push(((float)(pumpOnTimes[fiveOn] )) * (0.00001666666));
