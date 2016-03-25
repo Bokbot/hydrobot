@@ -141,332 +141,6 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 //Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 
 
-float p = 3.1415926;
-
-// LCD init END
-
-void setup() {
-  // initialize serial communications at 9600 bps:
-  Serial.begin(9600);
-  pinMode(ledPin, OUTPUT);
-  pinMode(relayPin, OUTPUT);
-  timeOn = millis();
-  delay(2);
-  timeOff = millis();
-  delay(2);
-  pumpOn = 0;
-  throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
-  secondTime = (millis() + 1000); //1,000 ms = 1 second
-  turnOnPump();
-  //delay(1000);
-  //turnOffPump();
-  //delay(1000);
-  //turnOnPump();
-  // LCD setup START
-  Serial.print("Hello! ST7735 TFT Test");
-
-  // Use this initializer if you're using a 1.8" TFT
-  tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
-
-  // Use this initializer (uncomment) if you're using a 1.44" TFT
-  //tft.initR(INITR_144GREENTAB);   // initialize a ST7735S chip, black tab
-
-  Serial.println("Initialized");
-
-  uint16_t time = millis();
-  tft.fillScreen(ST7735_BLACK);
-  time = millis() - time;
-
-  Serial.println(time, DEC);
-  delay(500);
-
-  // large block of text
-  tft.fillScreen(ST7735_BLACK);
-  // testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
-  // delay(1000);
-  // tft.fillScreen(ST7735_BLACK);
-  // turnOffPump();
-
-  // PID start
-  windowStartTime = millis();
-
-  //initialize the variables we're linked to
-  Setpoint = 512;
-
-  //tell the PID to range between 0 and the full window size
-  myPID.SetOutputLimits(0, WindowSize);
-
-  //turn the PID on
-  myPID.SetMode(AUTOMATIC);
-  // PID end
-
-}
-
-void loop() {
-
-  // PID start
-  Input = analogRead(PIN_INPUT);
-  myPID.Compute();
-
-  /************************************************
-   * turn the output pin on/off based on pid output
-   ************************************************/
-  if (millis() - windowStartTime > WindowSize)
-  { //time to shift the Relay Window
-    windowStartTime += WindowSize;
-  }
-  if (Output < millis() - windowStartTime) {
-  //  digitalWrite(RELAY_PIN, HIGH);
-     PIDpumpOn = 1;
-  }
-  else {
-  //  digitalWrite(RELAY_PIN, LOW);
-     PIDpumpOn = 0;
-  }
-  // PID end
-
-  int minat = 0;
-  int maxat = 0;
-  watchdog++;
-  // read the analog in value:
-  sensorValue = analogRead(analogInPin);
-  //directOutput(sensorValue);
-
-  ok = checkThrottle( throttleTime, watchdog );
-  // Serial.print(ok);
-  // Serial.println(" = ok");
-
-  if(ok == 1) {
-
-    ok = 0;
-    watchdog = 0;
-    throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
-    // secondTime = (millis() + 1000); //1,000 ms = 1 second
-
-
-    // eventual functualize this next block
-    // checkSensors( sensorValue );
-    //
-    if(sensorValue > dryLimit) {
-      turnOnPump();
-      // dryLimit = dryLimit + nudge;
-      dryLimit = dryLimit + nudge + ( 0.25 * (sensorValue - dryLimit));
-      Serial.print("pumpon");
-      printOutput();
-    }
-    if(sensorValue < wetLimit) {
-      turnOffPump();
-      // wetLimit = wetLimit - nudge;
-      wetLimit = wetLimit - nudge - ( 0.25 * (wetLimit - sensorValue));
-      Serial.print("pumpoff");
-      printOutput();
-    }
-  }
-  else {
-    /*Serial.print("throttleTime = ");*/
-    /*Serial.print(throttleTime);*/
-    /*Serial.print(" time = ");*/
-    /*Serial.print(millis());*/
-    /*Serial.println("skip");*/
-  }
-  if(sensorValue > sensorHighValue) {
-    sensorHighValue = sensorValue;
-  }
-  if(sensorValue < sensorLowValue) {
-    sensorLowValue = sensorValue;
-  }
-  if(pumpOn == 1){
-    timeOn = millis();
-    pumpOnTimes[fiveOn] = timeOn - timeOff;
-    if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
-      wetLimit = wetLimit + yank + ( 0.5 * (sensorValue - wetLimit));
-      turnOffPump();
-      Serial.print("pumpon by min");
-      printOutput();
-    }
-  }
-  if(pumpOn == 0){
-    timeOff = millis();
-    pumpOffTimes[fiveOff] = timeOff - timeOn;
-    if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
-      dryLimit = dryLimit - yank - ( 0.5 * (dryLimit - sensorValue));
-      turnOnPump();
-      Serial.print("pumpon by max");
-      printOutput();
-    }
-  }
-  // end giant block
-
-  if( secondTime < millis() ) {
-    secondTime = (millis() + lcdInterval);
-    printOutput();
-  }
-  else {
-   // Serial.print("secondTime = ");
-   // Serial.print(secondTime);
-   // Serial.print(" time = ");
-   // Serial.print(millis());
-   // Serial.println("skip");
-  }
-
-  myDelay();
-
-} //end loop
-
-bool checkThrottle(unsigned long throttle, int dog){
-  // if the pump is on
-  if(pumpOn == 1){
-  // calculate how long the pump is on
-    pumpOnTimes[fiveOn] = timeOn - timeOff;
-    // if the pump on time is less than the minimum pump on time
-    if(pumpOnTimes[fiveOn] < pumpOnTimeMin){
-    // return zero or 'not ok'
-      return 0;
-    }
-  }
-  // if the pump is off
-  if(pumpOn == 0){
-  // calculate how long the pump has been off
-    pumpOffTimes[fiveOff] = timeOff - timeOn;
-    // if the pump off time is less than the minimum pump off time
-    if(pumpOffTimes[fiveOff] < pumpOffTimeMin){
-    // return zero or 'not ok'
-      return 0;
-    }
-  }
-  if( millis() > throttle ) {
-    // return one or 'ok'
-    return 1;
-  }
-  else if( dog > 3000 ){
-    // return one or 'ok'
-    return 1;
-  }
-  else{
-    return 0;
-  }
-}
-
-void directOutput ( int inputValue ) {
-  // map it to the range of the analog out:
-  outputValue = map(inputValue, 0, 1023, 0, 255);
-  // change the analog out value:
-  //analogWrite(analogOutPin, outputValue);
-}
-
-void printOutput () {
-  // print the results to the serial monitor:
-  Serial.print(" sensor = ");
-  Serial.print(sensorValue);
-  Serial.print(" dog = ");
-  Serial.print(watchdog);
-  Serial.print(" pumpOnTimes[fiveOn] = ");
-  Serial.print(pumpOnTimes[fiveOn]);
-  Serial.print(" pumpOffTimes[fiveOff] = ");
-  Serial.print(pumpOffTimes[fiveOff]);
-  Serial.print(" sensorHi = ");
-  Serial.print(sensorHighValue);
-  Serial.print(" sensorLo = ");
-  Serial.println(sensorLowValue);
-  // And show some interesting results.
-  Serial.print(" aveOn= ");
-  Serial.print("Mean:   "); Serial.println(aveOn.mean());
-  Serial.print("Mode:   "); Serial.println(aveOn.mode());
-  Serial.print("StdDev: "); Serial.println(aveOn.stddev());
-  Serial.println(' ');
-  // And show some interesting results.
-  Serial.print(" aveOff= ");
-  Serial.print("Mean:   "); Serial.println(aveOff.mean());
-  Serial.print("Mode:   "); Serial.println(aveOff.mode());
-  Serial.print("StdDev: "); Serial.println(aveOff.stddev());
-  Serial.println(' ');
-  if(flop) {
-    tft.invertDisplay(true);
-    flop = 0;
-    countZero++;
-  }
-  else {
-    tft.invertDisplay(false);
-    flop = 1;
-  }
-  if(countZero = 0){
-   backgroundColor = ST7735_BLACK;
-   foregroundColor = ST7735_WHITE;
-  }
-  // large block of text
-  tft.fillScreen(ST7735_BLACK);
-  tft.setCursor(0, 0);
-  tft.setTextSize(1);
-  tft.setTextColor(ST7735_GREEN);
-  tft.setTextWrap(true);
-  tft.print("sensor= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(sensorValue);
-  tft.setTextColor(ST7735_RED);
-  tft.print("OnTime= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(pumpOnTimes[fiveOn]);
-  tft.setTextColor(ST7735_MAGENTA);
-  tft.print("OffTime= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(pumpOffTimes[fiveOff]);
-  tft.setTextColor(ST7735_GREEN);
-  tft.print("dryL= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.print(dryLimit);
-  tft.setTextColor(ST7735_MAGENTA);
-  tft.print("wetL= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(wetLimit);
-  tft.setTextColor(ST7735_YELLOW);
-  tft.print("Hi= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(sensorHighValue);
-  tft.setTextColor(ST7735_RED);
-  tft.print("Lo= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(sensorLowValue);
-  tft.setTextColor(ST7735_RED);
-  tft.print("aveOn= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(aveOn.mean());
-  tft.setTextColor(ST7735_RED);
-  tft.print("aveOff= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(aveOff.mean());
-  tft.setTextColor(ST7735_GREEN);
-  tft.print("countOn= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(countdownOn());
-  tft.setTextColor(ST7735_GREEN);
-  tft.print("countOff= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(countdownOff());
-  tft.setTextColor(ST7735_GREEN);
-  tft.print("onCountMin= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(onCountMin());
-  tft.setTextColor(ST7735_GREEN);
-  tft.print("pumpOnCount= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(pumpOnCount);
-  tft.setTextColor(ST7735_GREEN);
-  tft.print("PIDoutput= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(Output);
-  tft.setTextColor(ST7735_GREEN);
-  tft.print("MultiplyTime= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(multiplyTime);
-  tft.print("DivideTime= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.println(divideTime);
-  tft.setTextColor(ST7735_MAGENTA);
-  tft.print("PIDpumpOn= ");
-  tft.setTextColor(ST7735_WHITE);
-  tft.print(PIDpumpOn);
-}
-
 float countdownOn() {
   //output in minutes
   return ((float)(pumpOnTimeMax - pumpOnTimes[fiveOn] ) / (60000));
@@ -664,7 +338,6 @@ void tftPrintTest() {
   tft.println("Hello World!");
   tft.setTextSize(1);
   tft.setTextColor(ST7735_GREEN);
-  tft.print(p, 6);
   tft.println(" Want pi?");
   tft.println(" ");
   tft.print(8675309, HEX); // print 8,675,309 out in HEX!
@@ -699,3 +372,329 @@ void mediabuttons() {
   // play color
   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_GREEN);
 }
+
+float p = 3.1415926;
+
+bool checkThrottle(unsigned long throttle, int dog){
+  // if the pump is on
+  if(pumpOn == 1){
+  // calculate how long the pump is on
+    pumpOnTimes[fiveOn] = timeOn - timeOff;
+    // if the pump on time is less than the minimum pump on time
+    if(pumpOnTimes[fiveOn] < pumpOnTimeMin){
+    // return zero or 'not ok'
+      return 0;
+    }
+  }
+  // if the pump is off
+  if(pumpOn == 0){
+  // calculate how long the pump has been off
+    pumpOffTimes[fiveOff] = timeOff - timeOn;
+    // if the pump off time is less than the minimum pump off time
+    if(pumpOffTimes[fiveOff] < pumpOffTimeMin){
+    // return zero or 'not ok'
+      return 0;
+    }
+  }
+  if( millis() > throttle ) {
+    // return one or 'ok'
+    return 1;
+  }
+  else if( dog > 3000 ){
+    // return one or 'ok'
+    return 1;
+  }
+  else{
+    return 0;
+  }
+}
+
+void directOutput ( int inputValue ) {
+  // map it to the range of the analog out:
+  outputValue = map(inputValue, 0, 1023, 0, 255);
+  // change the analog out value:
+  //analogWrite(analogOutPin, outputValue);
+}
+
+void printOutput () {
+  // print the results to the serial monitor:
+  Serial.print(" sensor = ");
+  Serial.print(sensorValue);
+  Serial.print(" dog = ");
+  Serial.print(watchdog);
+  Serial.print(" pumpOnTimes[fiveOn] = ");
+  Serial.print(pumpOnTimes[fiveOn]);
+  Serial.print(" pumpOffTimes[fiveOff] = ");
+  Serial.print(pumpOffTimes[fiveOff]);
+  Serial.print(" sensorHi = ");
+  Serial.print(sensorHighValue);
+  Serial.print(" sensorLo = ");
+  Serial.println(sensorLowValue);
+  // And show some interesting results.
+  Serial.print(" aveOn= ");
+  Serial.print("Mean:   "); Serial.println(aveOn.mean());
+  Serial.print("Mode:   "); Serial.println(aveOn.mode());
+  Serial.print("StdDev: "); Serial.println(aveOn.stddev());
+  Serial.println(' ');
+  // And show some interesting results.
+  Serial.print(" aveOff= ");
+  Serial.print("Mean:   "); Serial.println(aveOff.mean());
+  Serial.print("Mode:   "); Serial.println(aveOff.mode());
+  Serial.print("StdDev: "); Serial.println(aveOff.stddev());
+  Serial.println(' ');
+  if(flop) {
+    tft.invertDisplay(true);
+    flop = 0;
+    countZero++;
+  }
+  else {
+    tft.invertDisplay(false);
+    flop = 1;
+  }
+  if(countZero = 0){
+   backgroundColor = ST7735_BLACK;
+   foregroundColor = ST7735_WHITE;
+  }
+  // large block of text
+  tft.fillScreen(ST7735_BLACK);
+  tft.setCursor(0, 0);
+  tft.setTextSize(1);
+  tft.setTextColor(ST7735_GREEN);
+  tft.setTextWrap(true);
+  tft.print("sensor= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(sensorValue);
+  tft.setTextColor(ST7735_RED);
+  tft.print("OnTime= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(pumpOnTimes[fiveOn]);
+  tft.setTextColor(ST7735_MAGENTA);
+  tft.print("OffTime= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(pumpOffTimes[fiveOff]);
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("dryL= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.print(dryLimit);
+  tft.setTextColor(ST7735_MAGENTA);
+  tft.print("wetL= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(wetLimit);
+  tft.setTextColor(ST7735_YELLOW);
+  tft.print("Hi= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(sensorHighValue);
+  tft.setTextColor(ST7735_RED);
+  tft.print("Lo= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(sensorLowValue);
+  tft.setTextColor(ST7735_RED);
+  tft.print("aveOn= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(aveOn.mean());
+  tft.setTextColor(ST7735_RED);
+  tft.print("aveOff= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(aveOff.mean());
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("countOn= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(countdownOn());
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("countOff= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(countdownOff());
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("onCountMin= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(onCountMin());
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("pumpOnCount= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(pumpOnCount);
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("PIDoutput= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(Output);
+  tft.setTextColor(ST7735_GREEN);
+  tft.print("MultiplyTime= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(multiplyTime);
+  tft.print("DivideTime= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.println(divideTime);
+  tft.setTextColor(ST7735_MAGENTA);
+  tft.print("PIDpumpOn= ");
+  tft.setTextColor(ST7735_WHITE);
+  tft.print(PIDpumpOn);
+}
+
+// LCD init END
+
+void setup() {
+  // initialize serial communications at 9600 bps:
+  Serial.begin(9600);
+  pinMode(ledPin, OUTPUT);
+  pinMode(relayPin, OUTPUT);
+  timeOn = millis();
+  delay(2);
+  timeOff = millis();
+  delay(2);
+  pumpOn = 0;
+  throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
+  secondTime = (millis() + 1000); //1,000 ms = 1 second
+  turnOnPump();
+  //delay(1000);
+  //turnOffPump();
+  //delay(1000);
+  //turnOnPump();
+  // LCD setup START
+  Serial.print("Hello! ST7735 TFT Test");
+
+  // Use this initializer if you're using a 1.8" TFT
+  tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
+
+  // Use this initializer (uncomment) if you're using a 1.44" TFT
+  //tft.initR(INITR_144GREENTAB);   // initialize a ST7735S chip, black tab
+
+  Serial.println("Initialized");
+
+  uint16_t time = millis();
+  tft.fillScreen(ST7735_BLACK);
+  time = millis() - time;
+
+  Serial.println(time, DEC);
+  delay(500);
+
+  // large block of text
+  tft.fillScreen(ST7735_BLACK);
+  // testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
+  // delay(1000);
+  // tft.fillScreen(ST7735_BLACK);
+  // turnOffPump();
+
+  // PID start
+  windowStartTime = millis();
+
+  //initialize the variables we're linked to
+  Setpoint = 512;
+
+  //tell the PID to range between 0 and the full window size
+  myPID.SetOutputLimits(0, WindowSize);
+
+  //turn the PID on
+  myPID.SetMode(AUTOMATIC);
+  // PID end
+
+}
+
+void loop() {
+
+  // PID start
+  Input = analogRead(PIN_INPUT);
+  myPID.Compute();
+
+  /************************************************
+   * turn the output pin on/off based on pid output
+   ************************************************/
+  if (millis() - windowStartTime > WindowSize)
+  { //time to shift the Relay Window
+    windowStartTime += WindowSize;
+  }
+  if (Output < millis() - windowStartTime) {
+  //  digitalWrite(RELAY_PIN, HIGH);
+     PIDpumpOn = 1;
+  }
+  else {
+  //  digitalWrite(RELAY_PIN, LOW);
+     PIDpumpOn = 0;
+  }
+  // PID end
+
+  int minat = 0;
+  int maxat = 0;
+  watchdog++;
+  // read the analog in value:
+  sensorValue = analogRead(analogInPin);
+  //directOutput(sensorValue);
+
+  ok = checkThrottle( throttleTime, watchdog );
+  // Serial.print(ok);
+  // Serial.println(" = ok");
+
+  if(ok == 1) {
+
+    ok = 0;
+    watchdog = 0;
+    throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
+    // secondTime = (millis() + 1000); //1,000 ms = 1 second
+
+
+    // eventual functualize this next block
+    // checkSensors( sensorValue );
+    //
+    if(sensorValue > dryLimit) {
+      turnOnPump();
+      // dryLimit = dryLimit + nudge;
+      dryLimit = dryLimit + nudge + ( 0.25 * (sensorValue - dryLimit));
+      Serial.print("pumpon");
+      printOutput();
+    }
+    if(sensorValue < wetLimit) {
+      turnOffPump();
+      // wetLimit = wetLimit - nudge;
+      wetLimit = wetLimit - nudge - ( 0.25 * (wetLimit - sensorValue));
+      Serial.print("pumpoff");
+      printOutput();
+    }
+  }
+  else {
+    /*Serial.print("throttleTime = ");*/
+    /*Serial.print(throttleTime);*/
+    /*Serial.print(" time = ");*/
+    /*Serial.print(millis());*/
+    /*Serial.println("skip");*/
+  }
+  if(sensorValue > sensorHighValue) {
+    sensorHighValue = sensorValue;
+  }
+  if(sensorValue < sensorLowValue) {
+    sensorLowValue = sensorValue;
+  }
+  if(pumpOn == 1){
+    timeOn = millis();
+    pumpOnTimes[fiveOn] = timeOn - timeOff;
+    if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
+      wetLimit = wetLimit + yank + ( 0.5 * (sensorValue - wetLimit));
+      turnOffPump();
+      Serial.print("pumpon by min");
+      printOutput();
+    }
+  }
+  if(pumpOn == 0){
+    timeOff = millis();
+    pumpOffTimes[fiveOff] = timeOff - timeOn;
+    if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
+      dryLimit = dryLimit - yank - ( 0.5 * (dryLimit - sensorValue));
+      turnOnPump();
+      Serial.print("pumpon by max");
+      printOutput();
+    }
+  }
+  // end giant block
+
+  if( secondTime < millis() ) {
+    secondTime = (millis() + lcdInterval);
+    printOutput();
+  }
+  else {
+   // Serial.print("secondTime = ");
+   // Serial.print(secondTime);
+   // Serial.print(" time = ");
+   // Serial.print(millis());
+   // Serial.println("skip");
+  }
+
+  myDelay();
+
+} //end loop
