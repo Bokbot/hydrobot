@@ -458,7 +458,7 @@ void printOutput () {
   Serial.print(humidity, 1);
   Serial.println(" ");
   Serial.print("DHT1122-Celsius ");
-  Serial.print(dht.getTemperature(), 1);
+  Serial.print(temperature);
   Serial.println(" ");
   Serial.print("DHT1122-Fahrenheit ");
   Serial.print(dht.toFahrenheit(temperature), 1);
@@ -583,6 +583,12 @@ void setup() {
   Serial.begin(9600);
   // temperature sensor setup
   dht.setup(DHT_PIN); // data pin
+  humidity = dht.getHumidity();
+  temperature = dht.getTemperature();
+  moisture1 = analogRead(VAL_PROBE1);
+  moisture2 = analogRead(VAL_PROBE2);
+  moisture3 = analogRead(VAL_PROBE3);
+  moisture4 = analogRead(VAL_PROBE4);
   pinMode(ledPin, OUTPUT);
   pinMode(relayPin3, OUTPUT);
   timeOn = millis();
