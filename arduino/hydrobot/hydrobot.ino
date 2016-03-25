@@ -102,6 +102,13 @@ unsigned long multiplyTime;
 unsigned long pumpOnTimes[5];
 unsigned long pumpOffTimes[5];
 
+float humidity    = 0;
+float temperature = 0;
+int moisture1     = 0;
+int moisture2     = 0;
+int moisture3     = 0;
+int moisture4     = 0;
+
 // LCD init START
 
 /***************************************************
@@ -680,12 +687,12 @@ void loop() {
     watchdog = 0;
     throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
     // secondTime = (millis() + 1000); //1,000 ms = 1 second
-    float humidity = dht.getHumidity();
-    float temperature = dht.getTemperature();
-    int moisture1 = analogRead(VAL_PROBE1);
-    int moisture2 = analogRead(VAL_PROBE2);
-    int moisture3 = analogRead(VAL_PROBE3);
-    int moisture4 = analogRead(VAL_PROBE4);
+    humidity = dht.getHumidity();
+    temperature = dht.getTemperature();
+    moisture1 = analogRead(VAL_PROBE1);
+    moisture2 = analogRead(VAL_PROBE2);
+    moisture3 = analogRead(VAL_PROBE3);
+    moisture4 = analogRead(VAL_PROBE4);
 
 
     // eventual functualize this next block
