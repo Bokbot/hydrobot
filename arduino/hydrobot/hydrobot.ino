@@ -1,4 +1,4 @@
-/*
+
   Analog input, analog output, serial output
 
   Reads an analog input pin, maps the result to a range from 0 to 255
@@ -18,6 +18,10 @@
   This example code is in the public domain.
 
 */
+#include "DHT.h"
+const int DHT_PIN = 2; // digital pin 2
+DHT dht;
+
 //PID section
 #include <PID_v1.h>
 
@@ -424,6 +428,30 @@ void directOutput ( int inputValue ) {
 }
 
 void printOutput () {
+  // ardushipper 
+  Serial.print("DHT1122-DHTstatus ");
+  Serial.print(dht.getStatusString());
+  Serial.println(" ");
+  Serial.print("DHT1122-Moisture ");
+  Serial.print(" Moisture1 ");
+  Serial.print(moisture1);
+  Serial.print(", Moisture2 ");
+  Serial.print(moisture2);
+  Serial.print(", Moisture3 ");
+  Serial.print(moisture3);
+  Serial.print(", Moisture4 ");
+  Serial.print(moisture4);
+  Serial.println(" ");
+  Serial.print("DHT1122-Humidity ");
+  Serial.print(humidity, 1);
+  Serial.println(" ");
+  Serial.print("DHT1122-Celsius ");
+  Serial.print(temperature, 1);
+  Serial.println(" ");
+  Serial.print("DHT1122-Fahrenheit ");
+  Serial.print(dht.toFahrenheit(temperature), 1);
+  Serial.println(" ");
+  Serial.println("3478-ENDTRANSMISSION");
   // print the results to the serial monitor:
   Serial.print(" sensor = ");
   Serial.print(sensorValue);
@@ -541,6 +569,8 @@ void printOutput () {
 void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
+  // temperature sensor setup
+  dht.setup(DHT_PIN); // data pin
   pinMode(ledPin, OUTPUT);
   pinMode(relayPin3, OUTPUT);
   timeOn = millis();
@@ -715,14 +745,3 @@ void loop() {
   myDelay();
 
 } //end loop
-
-  Serial.print(" aveOn= ");
-  Serial.print(" aveOff= ");
-  tft.print("aveOn= ");
-  tft.print("aveOff= ");
-  timeOff = millis();
-  pumpOffTimes[fiveOff] = timeOff - timeOn;
-  timeOn = millis();
-  pumpOnTimes[fiveOn] = timeOn - timeOff;
-  //aveOn.push(((float)(pumpOnTimes[fiveOn] )));
-  timeOff = millis();
