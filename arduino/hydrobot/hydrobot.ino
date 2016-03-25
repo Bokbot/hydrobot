@@ -41,7 +41,14 @@ const int yank = 11;      // how much to yank our value back
 // They're used to give names
 // to the pins used:
 const int ledPin = 7;      // select the pin for the LED
-const int relayPin = 6;      // select the pin for the LED
+const int relayPin1 = 4;      // select the pin for the LED
+const int relayPin2 = 5;      // select the pin for the LED
+const int relayPin3 = 6;      // select the pin for the LED
+const int relayPin4 = 7;      // select the pin for the LED
+const int relayPin5 = 8;      // select the pin for the LED
+const int relayPin6 = 9;      // select the pin for the LED
+const int relayPin7 = 10;      // select the pin for the LED
+const int relayPin8 = 11;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
@@ -156,7 +163,7 @@ unsigned long onCountMin() {
 }
 
 void turnOnPump () {
-  digitalWrite(relayPin, HIGH);
+  digitalWrite(relayPin3, HIGH);
   pumpOnCount++;
   pumpOn = 1;
   timeOn = millis();
@@ -171,7 +178,7 @@ void turnOnPump () {
 }
 
 void turnOffPump () {
-  digitalWrite(relayPin, LOW);
+  digitalWrite(relayPin3, LOW);
   pumpOn = 0;
   timeOff = millis();
   pumpOnTimes[fiveOn] = timeOff - timeOn;
@@ -373,7 +380,7 @@ void myDelay () {
   /*tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_GREEN);*/
 /*}*/
 
-float p = 3.1415926;
+float pi = 3.1415926;
 
 bool checkThrottle(unsigned long throttle, int dog){
   // if the pump is on
@@ -535,7 +542,7 @@ void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
-  pinMode(relayPin, OUTPUT);
+  pinMode(relayPin3, OUTPUT);
   timeOn = millis();
   delay(2);
   timeOff = millis();
