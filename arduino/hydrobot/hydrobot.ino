@@ -28,6 +28,11 @@ DHT dht;
 #define PIN_INPUT 0
 #define RELAY_PIN 6
 
+const int VAL_PROBE1 = 0; // Analog pin 0
+const int VAL_PROBE2 = 1; // Analog pin 1
+const int VAL_PROBE3 = 2; // Analog pin 2
+const int VAL_PROBE4 = 3; // Analog pin 3
+
 //Define Variables we'll be connecting to
 double Setpoint, Input, Output;
 
