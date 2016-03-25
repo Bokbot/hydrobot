@@ -20,7 +20,6 @@
 */
 #include "DHT.h"
 const int DHT_PIN = 2; // digital pin 2
-DHT dht;
 
 //PID section
 #include <PID_v1.h>
@@ -567,6 +566,7 @@ void printOutput () {
 // LCD init END
 
 void setup() {
+  DHT dht;
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
   // temperature sensor setup
