@@ -402,7 +402,7 @@ void myDelay () {
   /*tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_GREEN);*/
 /*}*/
 
-float pi = 3.1415926;
+const float pi = 3.1415926;
 
 bool checkThrottle(unsigned long throttle, int dog){
   // if the pump is on
@@ -464,16 +464,16 @@ void printOutput () {
   // ardushipper 
   Serial.print("DHT1122-DHTstatus ");
   Serial.println(dht.getStatusString());
-  Serial.print("DHT1122-Moisture ");
-  Serial.print(" Moisture1 ");
-  Serial.print(sensorValue1);
-  Serial.print(", Moisture2 ");
-  Serial.print(sensorValue2);
-  Serial.print(", Moisture3 ");
-  Serial.print(sensorValue3);
-  Serial.print(", Moisture4 ");
-  Serial.print(sensorValue4);
-  Serial.print(", Moisture5 ");
+  // Moisture
+  Serial.print("DHT1122-Moisture1 ");
+  Serial.println(sensorValue1);
+  Serial.print("DHT1122-Moisture2 ");
+  Serial.println(sensorValue2);
+  Serial.print("DHT1122-Moisture3 ");
+  Serial.println(sensorValue3);
+  Serial.print("DHT1122-Moisture4 ");
+  Serial.println(sensorValue4);
+  Serial.print("DHT1122-Moisture5 ");
   Serial.println(sensorValue5);
   Serial.print("DHT1122-Humidity ");
   Serial.println(humidity, 1);
@@ -497,28 +497,26 @@ void printOutput () {
   // And show some interesting results.
   Serial.print("DHT1122 ");
   Serial.print(" aveOn= ");
-  Serial.print("Mean:   "); Serial.println(aveOn.mean());
-  Serial.print("Mode:   "); Serial.println(aveOn.mode());
+  Serial.print("Mean:   "); Serial.print(aveOn.mean());
+  Serial.print("Mode:   "); Serial.print(aveOn.mode());
   Serial.print("StdDev: "); Serial.println(aveOn.stddev());
-  Serial.println("DHT1122");
   // And show some interesting results.
   Serial.print("DHT1122 ");
   Serial.print(" aveOff= ");
-  Serial.print("Mean:   "); Serial.println(aveOff.mean());
-  Serial.print("Mode:   "); Serial.println(aveOff.mode());
+  Serial.print("Mean:   "); Serial.print(aveOff.mean());
+  Serial.print("Mode:   "); Serial.print(aveOff.mode());
   Serial.print("StdDev: "); Serial.println(aveOff.stddev());
+  if(countZero = 0){
+   /*backgroundColor = ST7735_BLACK;*/
+   /*foregroundColor = ST7735_WHITE;*/
+  }
   if(flop) {
     /*tft.invertDisplay(true);*/
     flop = 0;
-    countZero++;
   }
   else {
     /*tft.invertDisplay(false);*/
     flop = 1;
-  }
-  if(countZero = 0){
-   /*backgroundColor = ST7735_BLACK;*/
-   /*foregroundColor = ST7735_WHITE;*/
   }
   // large block of text
   /*tft.fillScreen(ST7735_BLACK);*/
@@ -676,6 +674,7 @@ void setup() {
 
 void loop() {
 
+  countZero++;
   // PID start
   Input = analogRead(PIN_INPUT);
   myPID.Compute();
