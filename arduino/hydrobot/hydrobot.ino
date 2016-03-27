@@ -49,7 +49,6 @@ const int nudge = 3;      // how much to nudge our value forward
 const int yank = 11;      // how much to yank our value back
 // They're used to give names
 // to the pins used:
-const int ledPin = 7;      // select the pin for the LED
 const int relayPin1 = 4;      // select the pin for the LED
 const int relayPin2 = 5;      // select the pin for the LED
 const int relayPin3 = 6;      // select the pin for the LED
@@ -59,7 +58,12 @@ const int relayPin6 = 9;      // select the pin for the LED
 const int relayPin7 = 10;      // select the pin for the LED
 const int relayPin8 = 11;      // select the pin for the LED
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
-const int analogOutPin = 9; // Analog output pin that the LED is attached to
+const int analogInPin1 = A0;  // Analog input pin that the potentiometer is attached to
+const int analogInPin2 = A0;  // Analog input pin that the potentiometer is attached to
+const int analogInPin3 = A0;  // Analog input pin that the potentiometer is attached to
+const int analogInPin4 = A0;  // Analog input pin that the potentiometer is attached to
+const int analogInPin5 = A0;  // Analog input pin that the potentiometer is attached to
+const int analogOutPin = 13; // Analog output pin that the LED is attached to
 
 // These constants won't change
 const unsigned long pumpOnTimeMax = 1800000; // maximum time pump should be on in ms: 1,800,000 ms = 30 minutes
@@ -75,7 +79,11 @@ bool PIDpumpOn;
 
 int dryLimit = 855;        // this is the value of dryness we don't want to exceed
 int wetLimit = 220;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
-int sensorValue = 0;        // value read from the pot
+int sensorValue1 = 0;        // value read from the pot
+int sensorValue2 = 0;        // value read from the pot
+int sensorValue3 = 0;        // value read from the pot
+int sensorValue4 = 0;        // value read from the pot
+int sensorValue5 = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 int sensorLowValue = 1024;
 int sensorHighValue = 0;
@@ -104,10 +112,6 @@ unsigned long pumpOffTimes[5];
 
 float humidity    = 0;
 float temperature = 0;
-int moisture1     = 0;
-int moisture2     = 0;
-int moisture3     = 0;
-int moisture4     = 0;
 
 // LCD init START
 
@@ -443,30 +447,30 @@ void printOutput () {
   // ardushipper 
   Serial.print("DHT1122-DHTstatus ");
   Serial.print(dht.getStatusString());
-  Serial.println(" ");
+  Serial.println("DHT1122");
   Serial.print("DHT1122-Moisture ");
   Serial.print(" Moisture1 ");
-  Serial.print(moisture1);
+  Serial.print(sensorValue1);
   Serial.print(", Moisture2 ");
-  Serial.print(moisture2);
+  Serial.print(sensorValue2);
   Serial.print(", Moisture3 ");
-  Serial.print(moisture3);
+  Serial.print(sensorValue3);
   Serial.print(", Moisture4 ");
-  Serial.print(moisture4);
-  Serial.println(" ");
+  Serial.print(sensorValue4);
+  Serial.print(", Moisture5 ");
+  Serial.print(sensorValue5);
+  Serial.println("DHT1122");
   Serial.print("DHT1122-Humidity ");
   Serial.print(humidity, 1);
-  Serial.println(" ");
+  Serial.println("DHT1122");
   Serial.print("DHT1122-Celsius ");
   Serial.print(temperature);
-  Serial.println(" ");
+  Serial.println("DHT1122");
   Serial.print("DHT1122-Fahrenheit ");
   Serial.print(dht.toFahrenheit(temperature), 1);
-  Serial.println(" ");
+  Serial.println("DHT1122");
   Serial.println("3478-ENDTRANSMISSION");
   // print the results to the serial monitor:
-  Serial.print(" sensor = ");
-  Serial.print(sensorValue);
   Serial.print(" dog = ");
   Serial.print(watchdog);
   Serial.print(" pumpOnTimes[fiveOn] = ");
@@ -482,13 +486,13 @@ void printOutput () {
   Serial.print("Mean:   "); Serial.println(aveOn.mean());
   Serial.print("Mode:   "); Serial.println(aveOn.mode());
   Serial.print("StdDev: "); Serial.println(aveOn.stddev());
-  Serial.println(' ');
+  Serial.println("DHT1122");
   // And show some interesting results.
   Serial.print(" aveOff= ");
   Serial.print("Mean:   "); Serial.println(aveOff.mean());
   Serial.print("Mode:   "); Serial.println(aveOff.mode());
   Serial.print("StdDev: "); Serial.println(aveOff.stddev());
-  Serial.println(' ');
+  Serial.println("DHT1122");
   if(flop) {
     /*tft.invertDisplay(true);*/
     flop = 0;
@@ -510,7 +514,7 @@ void printOutput () {
   /*tft.setTextWrap(true);*/
   /*tft.print("sensor= ");*/
   /*tft.setTextColor(ST7735_WHITE);*/
-  /*tft.println(sensorValue);*/
+  /*tft.println(sensorValue1);*/
   /*tft.setTextColor(ST7735_RED);*/
   /*tft.print("OnTime= ");*/
   /*tft.setTextColor(ST7735_WHITE);*/
@@ -581,16 +585,18 @@ void printOutput () {
 void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
+  pinMode(relayPin1, OUTPUT);
+  pinMode(relayPin2, OUTPUT);
   // temperature sensor setup
   dht.setup(DHT_PIN); // data pin
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
-  moisture1 = analogRead(VAL_PROBE1);
-  moisture2 = analogRead(VAL_PROBE2);
-  moisture3 = analogRead(VAL_PROBE3);
-  moisture4 = analogRead(VAL_PROBE4);
-  pinMode(ledPin, OUTPUT);
   pinMode(relayPin3, OUTPUT);
+  pinMode(relayPin4, OUTPUT);
+  pinMode(relayPin5, OUTPUT);
+  pinMode(relayPin6, OUTPUT);
+  pinMode(relayPin7, OUTPUT);
+  pinMode(relayPin8, OUTPUT);
   timeOn = millis();
   delay(2);
   timeOff = millis();
@@ -680,8 +686,12 @@ void loop() {
   int maxat = 0;
   watchdog++;
   // read the analog in value:
-  sensorValue = analogRead(analogInPin);
-  //directOutput(sensorValue);
+  sensorValue1 = analogRead(analogInPin1);
+  sensorValue2 = analogRead(analogInPin2);
+  sensorValue3 = analogRead(analogInPin3);
+  sensorValue4 = analogRead(analogInPin4);
+  sensorValue5 = analogRead(analogInPin5);
+  //directOutput(sensorValue1);
 
   ok = checkThrottle( throttleTime, watchdog );
   // Serial.print(ok);
@@ -695,26 +705,22 @@ void loop() {
     // secondTime = (millis() + 1000); //1,000 ms = 1 second
     humidity = dht.getHumidity();
     temperature = dht.getTemperature();
-    moisture1 = analogRead(VAL_PROBE1);
-    moisture2 = analogRead(VAL_PROBE2);
-    moisture3 = analogRead(VAL_PROBE3);
-    moisture4 = analogRead(VAL_PROBE4);
 
 
     // eventual functualize this next block
-    // checkSensors( sensorValue );
+    // checkSensors( sensorValue1 );
     //
-    if(sensorValue > dryLimit) {
+    if(sensorValue1 > dryLimit) {
       turnOnPump();
       // dryLimit = dryLimit + nudge;
-      dryLimit = dryLimit + nudge + ( 0.25 * (sensorValue - dryLimit));
+      dryLimit = dryLimit + nudge + ( 0.25 * (sensorValue1 - dryLimit));
       Serial.print("pumpon");
       printOutput();
     }
-    if(sensorValue < wetLimit) {
+    if(sensorValue1 < wetLimit) {
       turnOffPump();
       // wetLimit = wetLimit - nudge;
-      wetLimit = wetLimit - nudge - ( 0.25 * (wetLimit - sensorValue));
+      wetLimit = wetLimit - nudge - ( 0.25 * (wetLimit - sensorValue1));
       Serial.print("pumpoff");
       printOutput();
     }
@@ -726,17 +732,17 @@ void loop() {
     /*Serial.print(millis());*/
     /*Serial.println("skip");*/
   }
-  if(sensorValue > sensorHighValue) {
-    sensorHighValue = sensorValue;
+  if(sensorValue1 > sensorHighValue) {
+    sensorHighValue = sensorValue1;
   }
-  if(sensorValue < sensorLowValue) {
-    sensorLowValue = sensorValue;
+  if(sensorValue1 < sensorLowValue) {
+    sensorLowValue = sensorValue1;
   }
   if(pumpOn == 1){
     timeOn = millis();
     pumpOnTimes[fiveOn] = timeOn - timeOff;
     if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
-      wetLimit = wetLimit + yank + ( 0.5 * (sensorValue - wetLimit));
+      wetLimit = wetLimit + yank + ( 0.5 * (sensorValue1 - wetLimit));
       turnOffPump();
       Serial.print("pumpon by min");
       printOutput();
@@ -746,7 +752,7 @@ void loop() {
     timeOff = millis();
     pumpOffTimes[fiveOff] = timeOff - timeOn;
     if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
-      dryLimit = dryLimit - yank - ( 0.5 * (dryLimit - sensorValue));
+      dryLimit = dryLimit - yank - ( 0.5 * (dryLimit - sensorValue1));
       turnOnPump();
       Serial.print("pumpon by max");
       printOutput();
