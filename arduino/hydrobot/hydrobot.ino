@@ -73,6 +73,7 @@ const unsigned long pumpOffTimeMin = 5400000; // minimum time pump should be off
 const unsigned long lcdInterval = 5000; // lcd refresh interval in ms: 5,000 ms = 5 seconds
 
 bool ok;
+bool ok2;
 bool flop;
 bool pumpOn;
 bool PIDpumpOn;
@@ -96,6 +97,7 @@ unsigned int countZero = 0;
 unsigned int pumpOnCount = 0;
 
 unsigned int watchdog;
+unsigned int watchdog2;
 unsigned int fiveOn;
 unsigned int fiveOff;
 
@@ -104,6 +106,7 @@ unsigned long timeOn;
 unsigned long timeOff;
 unsigned long secondTime;
 unsigned long throttleTime;
+unsigned long serialthrottleTime;
 unsigned long divideTime;
 unsigned long multiplyTime;
 
@@ -436,6 +439,21 @@ bool checkThrottle(unsigned long throttle, int dog){
   }
 }
 
+bool serialcheckThrottle(unsigned long throttle, int dog){
+
+  if( millis() > throttle ) {
+    // return one or 'ok'
+    return 1;
+  }
+  else if( dog > 3000 ){
+    // return one or 'ok'
+    return 1;
+  }
+  else{
+    return 0;
+  }
+}
+
 void directOutput ( int inputValue ) {
   // map it to the range of the analog out:
   outputValue = map(inputValue, 0, 1023, 0, 255);
@@ -446,8 +464,7 @@ void directOutput ( int inputValue ) {
 void printOutput () {
   // ardushipper 
   Serial.print("DHT1122-DHTstatus ");
-  Serial.print(dht.getStatusString());
-  Serial.println("DHT1122");
+  Serial.println(dht.getStatusString());
   Serial.print("DHT1122-Moisture ");
   Serial.print(" Moisture1 ");
   Serial.print(sensorValue1);
@@ -458,19 +475,16 @@ void printOutput () {
   Serial.print(", Moisture4 ");
   Serial.print(sensorValue4);
   Serial.print(", Moisture5 ");
-  Serial.print(sensorValue5);
-  Serial.println("DHT1122");
+  Serial.println(sensorValue5);
   Serial.print("DHT1122-Humidity ");
-  Serial.print(humidity, 1);
-  Serial.println("DHT1122");
+  Serial.println(humidity, 1);
   Serial.print("DHT1122-Celsius ");
-  Serial.print(temperature);
-  Serial.println("DHT1122");
+  Serial.println(temperature);
   Serial.print("DHT1122-Fahrenheit ");
-  Serial.print(dht.toFahrenheit(temperature), 1);
-  Serial.println("DHT1122");
+  Serial.println(dht.toFahrenheit(temperature), 1);
   Serial.println("3478-ENDTRANSMISSION");
   // print the results to the serial monitor:
+  Serial.print("DHT1122 ");
   Serial.print(" dog = ");
   Serial.print(watchdog);
   Serial.print(" pumpOnTimes[fiveOn] = ");
@@ -482,17 +496,18 @@ void printOutput () {
   Serial.print(" sensorLo = ");
   Serial.println(sensorLowValue);
   // And show some interesting results.
+  Serial.print("DHT1122 ");
   Serial.print(" aveOn= ");
   Serial.print("Mean:   "); Serial.println(aveOn.mean());
   Serial.print("Mode:   "); Serial.println(aveOn.mode());
   Serial.print("StdDev: "); Serial.println(aveOn.stddev());
   Serial.println("DHT1122");
   // And show some interesting results.
+  Serial.print("DHT1122 ");
   Serial.print(" aveOff= ");
   Serial.print("Mean:   "); Serial.println(aveOff.mean());
   Serial.print("Mode:   "); Serial.println(aveOff.mode());
   Serial.print("StdDev: "); Serial.println(aveOff.stddev());
-  Serial.println("DHT1122");
   if(flop) {
     /*tft.invertDisplay(true);*/
     flop = 0;
@@ -606,7 +621,7 @@ void setup() {
   secondTime = (millis() + 1000); //1,000 ms = 1 second
   turnOnPump();
   // LCD setup START
-  Serial.print("Hello! ST7735 TFT Test");
+  //Serial.print("Hello! ST7735 TFT Test");
 
   // Use this initializer if you're using a 1.8" TFT
   /*tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab*/
@@ -614,13 +629,13 @@ void setup() {
   // Use this initializer (uncomment) if you're using a 1.44" TFT
   //tft.initR(INITR_144GREENTAB);   // initialize a ST7735S chip, black tab
 
-  Serial.println("Initialized");
+  //Serial.println("Initialized");
 
   uint16_t time = millis();
   /*tft.fillScreen(ST7735_BLACK);*/
   time = millis() - time;
 
-  Serial.println(time, DEC);
+  //Serial.println(time, DEC);
   delay(500);
 
   // large block of text
@@ -685,6 +700,7 @@ void loop() {
   int minat = 0;
   int maxat = 0;
   watchdog++;
+  watchdog2++;
   // read the analog in value:
   sensorValue1 = analogRead(analogInPin1);
   sensorValue2 = analogRead(analogInPin2);
@@ -694,8 +710,14 @@ void loop() {
   //directOutput(sensorValue1);
 
   ok = checkThrottle( throttleTime, watchdog );
+  ok2 = serialcheckThrottle( serialthrottleTime, watchdog2 );
   // Serial.print(ok);
   // Serial.println(" = ok");
+  if(ok2 == 1) {
+    printOutput();
+    ok2 = 0;
+    serialthrottleTime = (millis() + 5000); // 5,000 ms = 5 seconds
+  }
 
   if(ok == 1) {
 
@@ -714,15 +736,15 @@ void loop() {
       turnOnPump();
       // dryLimit = dryLimit + nudge;
       dryLimit = dryLimit + nudge + ( 0.25 * (sensorValue1 - dryLimit));
-      Serial.print("pumpon");
-      printOutput();
+      //Serial.print("pumpon");
+      //printOutput();
     }
     if(sensorValue1 < wetLimit) {
       turnOffPump();
       // wetLimit = wetLimit - nudge;
       wetLimit = wetLimit - nudge - ( 0.25 * (wetLimit - sensorValue1));
-      Serial.print("pumpoff");
-      printOutput();
+      //Serial.print("pumpoff");
+      //printOutput();
     }
   }
   else {
@@ -744,8 +766,8 @@ void loop() {
     if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
       wetLimit = wetLimit + yank + ( 0.5 * (sensorValue1 - wetLimit));
       turnOffPump();
-      Serial.print("pumpon by min");
-      printOutput();
+      //Serial.print("pumpon by min");
+      //printOutput();
     }
   }
   if(pumpOn == 0){
@@ -754,15 +776,15 @@ void loop() {
     if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
       dryLimit = dryLimit - yank - ( 0.5 * (dryLimit - sensorValue1));
       turnOnPump();
-      Serial.print("pumpon by max");
-      printOutput();
+      //Serial.print("pumpon by max");
+      //printOutput();
     }
   }
   // end giant block
 
   if( secondTime < millis() ) {
     secondTime = (millis() + lcdInterval);
-    printOutput();
+    //printOutput();
   }
   else {
    // Serial.print("secondTime = ");
