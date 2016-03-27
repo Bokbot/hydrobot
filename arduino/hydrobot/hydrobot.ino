@@ -57,12 +57,11 @@ const int relayPin5 = 8;      // select the pin for the LED
 const int relayPin6 = 9;      // select the pin for the LED
 const int relayPin7 = 10;      // select the pin for the LED
 const int relayPin8 = 11;      // select the pin for the LED
-const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogInPin1 = A0;  // Analog input pin that the potentiometer is attached to
-const int analogInPin2 = A0;  // Analog input pin that the potentiometer is attached to
-const int analogInPin3 = A0;  // Analog input pin that the potentiometer is attached to
-const int analogInPin4 = A0;  // Analog input pin that the potentiometer is attached to
-const int analogInPin5 = A0;  // Analog input pin that the potentiometer is attached to
+const int analogInPin2 = A1;  // Analog input pin that the potentiometer is attached to
+const int analogInPin3 = A2;  // Analog input pin that the potentiometer is attached to
+const int analogInPin4 = A3;  // Analog input pin that the potentiometer is attached to
+const int analogInPin5 = A4;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 13; // Analog output pin that the LED is attached to
 
 // These constants won't change
@@ -599,13 +598,16 @@ void printOutput () {
 
 void setup() {
   // initialize serial communications at 9600 bps:
+  throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
+  serialthrottleTime = (millis() + 5);
+  secondTime = (millis() + 1000); //1,000 ms = 1 second
   Serial.begin(9600);
-  pinMode(relayPin1, OUTPUT);
-  pinMode(relayPin2, OUTPUT);
   // temperature sensor setup
   dht.setup(DHT_PIN); // data pin
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
+  pinMode(relayPin1, OUTPUT);
+  pinMode(relayPin2, OUTPUT);
   pinMode(relayPin3, OUTPUT);
   pinMode(relayPin4, OUTPUT);
   pinMode(relayPin5, OUTPUT);
@@ -617,8 +619,6 @@ void setup() {
   timeOff = millis();
   delay(2);
   pumpOn = 0;
-  throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
-  secondTime = (millis() + 1000); //1,000 ms = 1 second
   turnOnPump();
   // LCD setup START
   //Serial.print("Hello! ST7735 TFT Test");
@@ -658,19 +658,19 @@ void setup() {
   myPID.SetMode(AUTOMATIC);
   // PID end
 
-  turnOffPump();
-  delay(1000);
-  turnOnPump();
-  delay(1000);
-  turnOnPump();
-  delay(1000);
-  turnOffPump();
-  delay(1000);
-  turnOnPump();
-  delay(1000);
-  turnOffPump();
-  delay(1000);
-  turnOffPump();
+  /*turnOffPump();*/
+  /*delay(1000);*/
+  /*turnOnPump();*/
+  /*delay(1000);*/
+  /*turnOnPump();*/
+  /*delay(1000);*/
+  /*turnOffPump();*/
+  /*delay(1000);*/
+  /*turnOnPump();*/
+  /*delay(1000);*/
+  /*turnOffPump();*/
+  /*delay(1000);*/
+  /*turnOffPump();*/
 
 }
 
@@ -689,16 +689,16 @@ void loop() {
   }
   if (Output < millis() - windowStartTime) {
   //  digitalWrite(RELAY_PIN, HIGH);
-     PIDpumpOn = 1;
+    PIDpumpOn = 1;
   }
   else {
   //  digitalWrite(RELAY_PIN, LOW);
-     PIDpumpOn = 0;
+    PIDpumpOn = 0;
   }
   // PID end
 
-  int minat = 0;
-  int maxat = 0;
+  /*int minat = 0;*/
+  /*int maxat = 0;*/
   watchdog++;
   watchdog2++;
   // read the analog in value:
@@ -717,6 +717,7 @@ void loop() {
     printOutput();
     ok2 = 0;
     serialthrottleTime = (millis() + 5000); // 5,000 ms = 5 seconds
+    watchdog2 = 0;
   }
 
   if(ok == 1) {
