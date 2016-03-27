@@ -707,6 +707,8 @@ void loop() {
   sensorValue3 = analogRead(analogInPin3);
   sensorValue4 = analogRead(analogInPin4);
   sensorValue5 = analogRead(analogInPin5);
+  humidity = dht.getHumidity();
+  temperature = dht.getTemperature();
   //directOutput(sensorValue1);
 
   ok = checkThrottle( throttleTime, watchdog );
@@ -726,24 +728,22 @@ void loop() {
     watchdog = 0;
     throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
     // secondTime = (millis() + 1000); //1,000 ms = 1 second
-    humidity = dht.getHumidity();
-    temperature = dht.getTemperature();
 
 
     // eventual functualize this next block
     // checkSensors( sensorValue1 );
     //
-    if(sensorValue1 > dryLimit) {
+    if(sensorValue1 < dryLimit) {
       turnOnPump();
       // dryLimit = dryLimit + nudge;
-      dryLimit = dryLimit + nudge + ( 0.25 * (sensorValue1 - dryLimit));
+      dryLimit = dryLimit - nudge - ( 0.25 * (dryLimit - sensorValue1));
       //Serial.print("pumpon");
       //printOutput();
     }
-    if(sensorValue1 < wetLimit) {
+    if(sensorValue1 > wetLimit) {
       turnOffPump();
       // wetLimit = wetLimit - nudge;
-      wetLimit = wetLimit - nudge - ( 0.25 * (wetLimit - sensorValue1));
+      wetLimit = wetLimit + nudge + ( 0.25 * (sensorValue1 - wetLimit));
       //Serial.print("pumpoff");
       //printOutput();
     }
@@ -765,7 +765,7 @@ void loop() {
     timeOn = millis();
     pumpOnTimes[fiveOn] = timeOn - timeOff;
     if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
-      wetLimit = wetLimit + yank + ( 0.5 * (sensorValue1 - wetLimit));
+      wetLimit = wetLimit - yank - ( 0.5 * (wetLimit - sensorValue1));
       turnOffPump();
       //Serial.print("pumpon by min");
       //printOutput();
@@ -775,7 +775,7 @@ void loop() {
     timeOff = millis();
     pumpOffTimes[fiveOff] = timeOff - timeOn;
     if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
-      dryLimit = dryLimit - yank - ( 0.5 * (dryLimit - sensorValue1));
+      dryLimit = dryLimit + yank + ( 0.5 * (sensorValue1 - dryLimit));
       turnOnPump();
       //Serial.print("pumpon by max");
       //printOutput();
