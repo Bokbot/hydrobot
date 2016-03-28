@@ -2,11 +2,12 @@
 
 #include ../../Arduino.mk
 ARDUINO_LIBS = Average Arduino-PID-Library Adafruit_GFX_Library Adafruit_ST7735_Library SPI Wire Time
+MONITOR_PORT = /dev/ttyACM0
+MONITOR_BAUDRATE  = 115200
 #BOARD_TAG   = nano
 #BOARD_SUB   = atmega328
 include /usr/share/arduino/Arduino.mk
 #BOARD_TAG    = nano328
-#MONITOR_PORT = /dev/ttyUSB0
 #ARDUINO_DIR   = /usr/share/arduino
 #ARDMK_DIR     = /usr/share/arduino
 #ARDMK_PATH    = /usr/bin
