@@ -676,8 +676,8 @@ void setup() {
 void loop() {
 
   countZero++;
-  PID start
-  //Input = analogRead(PIN_INPUT);
+  //  PID start
+  Input = analogRead(PIN_INPUT);
   myPID.Compute();
 
   /************************************************
@@ -785,6 +785,7 @@ void loop() {
      // Serial.print(millis());
      // Serial.println("skip");
     }
+  }
 
     myDelay();
 } //end loop
