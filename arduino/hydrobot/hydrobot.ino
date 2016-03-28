@@ -28,6 +28,13 @@ DHT dht;
 #define PIN_INPUT 0
 #define RELAY_PIN 6
 
+#include <Wire.h>
+
+#include <Time.h>
+#define TIME_MSG_LEN  11   // time sync to PC is HEADER followed by unix time_t as ten ascii digits
+#define TIME_HEADER  'T'   // Header tag for serial time sync message
+#define TIME_REQUEST  7    // ASCII bell character requests a time sync message 
+
 const int VAL_PROBE1 = 0; // Analog pin 0
 const int VAL_PROBE2 = 1; // Analog pin 1
 const int VAL_PROBE3 = 2; // Analog pin 2
@@ -100,7 +107,7 @@ unsigned int watchdog2;
 unsigned int fiveOn;
 unsigned int fiveOff;
 
-unsigned long now;
+unsigned long now1;
 unsigned long timeOn;
 unsigned long timeOff;
 unsigned long secondTime;
@@ -114,6 +121,13 @@ unsigned long pumpOffTimes[5];
 
 float humidity    = 0;
 float temperature = 0;
+
+void printDigits(int digits){ // utility function for digital clock display: prints preceding colon and leading 0
+  Serial.print(":");
+  if(digits < 10)
+    Serial.print('0');
+  Serial.print(digits);
+}
 
 // LCD init START
 
@@ -192,9 +206,9 @@ void turnOnPump () {
   pumpOffTimes[fiveOff] = timeOff - timeOn;
   //push new off time to the avg
   //aveOff.push(((float)(pumpOffTimes[fiveOff] )) * (0.00001666666));
-  now = micros();
+  now1 = micros();
   aveOff.push(((float)(pumpOffTimes[fiveOff] )) / (1000));
-  divideTime = micros() - now;
+  divideTime = micros() - now1;
   //aveOff.push((float)(pumpOffTimes[fiveOff]));
   fiveOff++; if(fiveOff > 4){fiveOff = 0;}
 }
@@ -207,9 +221,9 @@ void turnOffPump () {
   //push new on time to the avg
   //aveOn.push((float)(pumpOnTimes[fiveOn] ) / (60000));
   //aveOn.push(((float)(pumpOnTimes[fiveOn] )) * (0.00001666666));
-  now = micros();
+  now1 = micros();
   aveOn.push(((float)(pumpOnTimes[fiveOn] )) * (0.001));
-  multiplyTime = micros() - now;
+  multiplyTime = micros() - now1;
   fiveOn++; if(fiveOn > 4){fiveOn = 0;}
 }
 
@@ -599,7 +613,13 @@ void setup() {
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   serialthrottleTime = (millis() + 5);
   secondTime = (millis() + 1000); //1,000 ms = 1 second
-  Serial.begin(9600);
+  // Open serial communications and wait for port to open:
+  //Serial.begin(9600);
+  Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
+   while (!Serial) {
+    ; // wait for serial port to connect. Needed for Leonardo only
+  }
+  setTime(0);
   // temperature sensor setup
   dht.setup(DHT_PIN); // data pin
   humidity = dht.getHumidity();
