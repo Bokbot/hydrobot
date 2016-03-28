@@ -618,6 +618,7 @@ void setup() {
   delay(2);
   pumpOn = 0;
   turnOnPump();
+  printOutput();
   // LCD setup START
   //Serial.print("Hello! ST7735 TFT Test");
 
@@ -675,8 +676,8 @@ void setup() {
 void loop() {
 
   countZero++;
-  // PID start
-  Input = analogRead(PIN_INPUT);
+  PID start
+  //Input = analogRead(PIN_INPUT);
   myPID.Compute();
 
   /************************************************
@@ -722,12 +723,10 @@ void loop() {
   }
 
   if(ok == 1) {
-
     ok = 0;
     watchdog = 0;
     throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
     // secondTime = (millis() + 1000); //1,000 ms = 1 second
-
 
     // eventual functualize this next block
     // checkSensors( sensorValue1 );
@@ -746,54 +745,46 @@ void loop() {
       //Serial.print("pumpoff");
       //printOutput();
     }
-  }
-  else {
-    /*Serial.print("throttleTime = ");*/
-    /*Serial.print(throttleTime);*/
-    /*Serial.print(" time = ");*/
-    /*Serial.print(millis());*/
-    /*Serial.println("skip");*/
-  }
-  if(sensorValue1 > sensorHighValue) {
-    sensorHighValue = sensorValue1;
-  }
-  if(sensorValue1 < sensorLowValue) {
-    sensorLowValue = sensorValue1;
-  }
-  if(pumpOn == 1){
-    timeOn = millis();
-    pumpOnTimes[fiveOn] = timeOn - timeOff;
-    if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
-      wetLimit = wetLimit - yank - ( 0.5 * (wetLimit - sensorValue1));
-      turnOffPump();
-      //Serial.print("pumpon by min");
+
+    if(sensorValue1 > sensorHighValue) {
+      sensorHighValue = sensorValue1;
+    }
+    if(sensorValue1 < sensorLowValue) {
+      sensorLowValue = sensorValue1;
+    }
+    if(pumpOn == 1){
+      timeOn = millis();
+      pumpOnTimes[fiveOn] = timeOn - timeOff;
+      if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
+        wetLimit = wetLimit - yank - ( 0.5 * (wetLimit - sensorValue1));
+        turnOffPump();
+        //Serial.print("pumpon by min");
+        //printOutput();
+      }
+    }
+    if(pumpOn == 0){
+      timeOff = millis();
+      pumpOffTimes[fiveOff] = timeOff - timeOn;
+      if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
+        dryLimit = dryLimit + yank + ( 0.5 * (sensorValue1 - dryLimit));
+        turnOnPump();
+        //Serial.print("pumpon by max");
+        //printOutput();
+      }
+    }
+    // end giant block
+
+    if( secondTime < millis() ) {
+      secondTime = (millis() + lcdInterval);
       //printOutput();
     }
-  }
-  if(pumpOn == 0){
-    timeOff = millis();
-    pumpOffTimes[fiveOff] = timeOff - timeOn;
-    if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
-      dryLimit = dryLimit + yank + ( 0.5 * (sensorValue1 - dryLimit));
-      turnOnPump();
-      //Serial.print("pumpon by max");
-      //printOutput();
+    else {
+     // Serial.print("secondTime = ");
+     // Serial.print(secondTime);
+     // Serial.print(" time = ");
+     // Serial.print(millis());
+     // Serial.println("skip");
     }
-  }
-  // end giant block
 
-  if( secondTime < millis() ) {
-    secondTime = (millis() + lcdInterval);
-    //printOutput();
-  }
-  else {
-   // Serial.print("secondTime = ");
-   // Serial.print(secondTime);
-   // Serial.print(" time = ");
-   // Serial.print(millis());
-   // Serial.println("skip");
-  }
-
-  myDelay();
-
+    myDelay();
 } //end loop
