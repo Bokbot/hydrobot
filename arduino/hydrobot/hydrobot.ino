@@ -495,7 +495,6 @@ void printOutput () {
   Serial.println(temperature);
   Serial.print("DHT1122-Fahrenheit ");
   Serial.println(dht.toFahrenheit(temperature), 1);
-  Serial.println("3478-ENDTRANSMISSION");
   // print the results to the serial monitor:
   Serial.print("DHT1122 ");
   Serial.print(" dog = ");
@@ -520,6 +519,7 @@ void printOutput () {
   Serial.print("Mean:   "); Serial.print(aveOff.mean());
   Serial.print("Mode:   "); Serial.print(aveOff.mode());
   Serial.print("StdDev: "); Serial.println(aveOff.stddev());
+  Serial.println("3478-ENDTRANSMISSION");
   if(countZero = 0){
    /*backgroundColor = ST7735_BLACK;*/
    /*foregroundColor = ST7735_WHITE;*/
