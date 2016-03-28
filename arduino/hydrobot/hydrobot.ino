@@ -614,7 +614,6 @@ void setup() {
   serialthrottleTime = (millis() + 5);
   secondTime = (millis() + 1000); //1,000 ms = 1 second
   // Open serial communications and wait for port to open:
-  //Serial.begin(9600);
   Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
    while (!Serial) {
     ; // wait for serial port to connect. Needed for Leonardo only
