@@ -22,6 +22,7 @@
 const int DHT_PIN = 2; // digital pin 2
 DHT dht;
 
+String dataString = "";
 //PID section
 #include <PID_v1.h>
 
@@ -476,51 +477,99 @@ void directOutput ( int inputValue ) {
 
 void printOutput () {
   // ardushipper 
-  Serial.print("DHT1122-DHTstatus ");
-  Serial.println(dht.getStatusString());
+     // make a string for assembling the data to log:
+  /*dataString += String(int((10 * moisture1)));*/
+  /*dataString += String(int((10 * moisture2)));*/
+    /*dataString += ",";*/
+  /*dataString += String(int((10 * moisture3)));*/
+    /*dataString += ",";*/
+  /*dataString += String(int((10 * moisture4)));*/
+    /*dataString += ",";*/
+  /*dataString += String(int((10 * humidity)));*/
+    /*dataString += ",";*/
+  /*dataString += String(int((10 * temperature)));*/
+    /*dataString += ",";*/
+  /*dataString += String(t);*/
+  // Serial.print("DHT1122-DHTstatus ");
+  dataString = "DHT1122-DHTstatus ";
+  // Serial.println(dht.getStatusString());
+  dataString += dht.getStatusString();
+  dataString += "\n";
   // Moisture
-  Serial.print("DHT1122-Moisture1 ");
-  Serial.println(sensorValue1);
-  Serial.print("DHT1122-Moisture2 ");
-  Serial.println(sensorValue2);
-  Serial.print("DHT1122-Moisture3 ");
-  Serial.println(sensorValue3);
-  Serial.print("DHT1122-Moisture4 ");
-  Serial.println(sensorValue4);
-  Serial.print("DHT1122-Moisture5 ");
-  Serial.println(sensorValue5);
-  Serial.print("DHT1122-Humidity ");
-  Serial.println(humidity, 1);
-  Serial.print("DHT1122-Celsius ");
-  Serial.println(temperature);
-  Serial.print("DHT1122-Fahrenheit ");
-  Serial.println(dht.toFahrenheit(temperature), 1);
+  //Serial.print("DHT1122-Moisture1 ");
+  dataString += "DHT1122-Moisture1 ";
+  //Serial.println(sensorValue1);
+  dataString += sensorValue1;
+  dataString += "\n";
+  //Serial.print("DHT1122-Moisture2 ");
+  dataString += "DHT1122-Moisture2 ";
+  //Serial.println(sensorValue2);
+  dataString += sensorValue2;
+  dataString += "\n";
+  //Serial.print("DHT1122-Moisture3 ");
+  dataString += "DHT1122-Moisture3 ";
+  //Serial.println(sensorValue3);
+  dataString += sensorValue3;
+  dataString += "\n";
+  //Serial.print("DHT1122-Moisture4 ");
+  dataString += "DHT1122-Moisture4 ";
+  //Serial.println(sensorValue4);
+  dataString += sensorValue4;
+  dataString += "\n";
+  //Serial.print("DHT1122-Moisture5 ");
+  dataString += "DHT1122-Moisture5 ";
+  //Serial.println(sensorValue5);
+  dataString += sensorValue5;
+  //Serial.print("DHT1122-Humidity ");
+  dataString += "DHT1122-Humidity ";
+  //Serial.println(humidity, 1);
+  dataString += humidity;
+  dataString += "\n";
+  //Serial.print("DHT1122-Celsius ");
+  dataString += "DHT1122-Celsius ";
+  //Serial.println(temperature);
+  dataString += temperature;
+  dataString += "\n";
+  //Serial.print("DHT1122-Fahrenheit ");
+  dataString += "DHT1122-Fahrenheit ";
+  //Serial.println(dht.toFahrenheit(temperature), 1);
+  dataString += dht.toFahrenheit(temperature);
+  dataString += "\n";
   // print the results to the serial monitor:
-  Serial.print("DHT1122 ");
-  Serial.print(" dog = ");
-  Serial.print(watchdog);
-  Serial.print(" pumpOnTimes[fiveOn] = ");
-  Serial.print(pumpOnTimes[fiveOn]);
-  Serial.print(" pumpOffTimes[fiveOff] = ");
-  Serial.print(pumpOffTimes[fiveOff]);
-  Serial.print(" sensorHi = ");
-  Serial.print(sensorHighValue);
-  Serial.print(" sensorLo = ");
-  Serial.println(sensorLowValue);
+  dataString += "DHT1122 ";
+  dataString += " dog = ";
+  dataString += watchdog;
+  dataString += " pumpOnTimes[fiveOn] = ";
+  dataString += pumpOnTimes[fiveOn];
+  dataString += " pumpOffTimes[fiveOff] = ";
+  dataString += pumpOffTimes[fiveOff];
+  dataString += " sensorHi = ";
+  dataString += sensorHighValue;
+  dataString += " sensorLo = ";
+  dataString += sensorLowValue;
+  dataString += "\n";
   // And show some interesting results.
-  Serial.print("DHT1122 ");
-  Serial.print(" aveOn= ");
-  Serial.print("Mean:   "); Serial.print(aveOn.mean());
-  Serial.print("Mode:   "); Serial.print(aveOn.mode());
-  Serial.print("StdDev: "); Serial.println(aveOn.stddev());
+  dataString += "DHT1122 ";
+  dataString += " aveOn= ";
+  dataString += "Mean:   "; 
+  dataString += aveOn.mean();
+  dataString += "Mode:   "; 
+  dataString += aveOn.mode();
+  dataString += "StdDev: "; 
+  dataString += aveOn.stddev();
   // And show some interesting results.
-  Serial.print("DHT1122 ");
-  Serial.print(" aveOff= ");
-  Serial.print("Mean:   "); Serial.print(aveOff.mean());
-  Serial.print("Mode:   "); Serial.print(aveOff.mode());
-  Serial.print("StdDev: "); Serial.println(aveOff.stddev());
-  Serial.println("3478-ENDTRANSMISSION");
-  if(countZero = 0){
+  dataString += "DHT1122 ";
+  dataString += " aveOff= ";
+  dataString += "Mean:   "; 
+  dataString += aveOff.mean();
+  dataString += "Mode:   "; 
+  dataString += aveOff.mode();
+  dataString += "StdDev: "; 
+  dataString += aveOff.stddev();
+  dataString += "3478-ENDTRANSMISSION";
+  dataString += "\n";
+  Serial.print(dataString);
+  if(countZero == 0){
    /*backgroundColor = ST7735_BLACK;*/
    /*foregroundColor = ST7735_WHITE;*/
   }
@@ -604,11 +653,20 @@ void printOutput () {
   /*tft.print("PIDpumpOn= ");*/
   /*tft.setTextColor(ST7735_WHITE);*/
   /*tft.print(PIDpumpOn);*/
+} 
+
+void requestEvent() {
+  Wire.write("hello "); // respond with message of 6 bytes
+  //Wire.write(dataString); // respond with giant message of unknown bytes
+
+    // as expected by master
 }
 
 // LCD init END
 
 void setup() {
+  Wire.begin(108);                // join i2c bus with address #8
+  Wire.onRequest(requestEvent); // register event
   // initialize serial communications at 9600 bps:
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   serialthrottleTime = (millis() + 5);
