@@ -494,28 +494,28 @@ void printOutput () {
   dataString = "DHT1122-DHTstatus ";
   // Serial.println(dht.getStatusString());
   dataString += String(int((dht.getStatusString())));
-  dataString += "\n";
+  dataString += "\r\n";
   // Moisture
   //Serial.print("DHT1122-Moisture1 ");
   dataString += "DHT1122-Moisture1 ";
   //Serial.println(sensorValue1);
   dataString += String(int((sensorValue1)));
-  dataString += "\n";
+  dataString += "\r\n";
   //Serial.print("DHT1122-Moisture2 ");
   dataString += "DHT1122-Moisture2 ";
   //Serial.println(sensorValue2);
   dataString += String(int((sensorValue2)));
-  dataString += "\n";
+  dataString += "\r\n";
   //Serial.print("DHT1122-Moisture3 ");
   dataString += "DHT1122-Moisture3 ";
   //Serial.println(sensorValue3);
   dataString += String(int((sensorValue3)));
-  dataString += "\n";
+  dataString += "\r\n";
   //Serial.print("DHT1122-Moisture4 ");
   dataString += "DHT1122-Moisture4 ";
   //Serial.println(sensorValue4);
   dataString += String(int((sensorValue4)));
-  dataString += "\n";
+  dataString += "\r\n";
   //Serial.print("DHT1122-Moisture5 ");
   dataString += "DHT1122-Moisture5 ";
   //Serial.println(sensorValue5);
@@ -524,17 +524,17 @@ void printOutput () {
   dataString += "DHT1122-Humidity ";
   //Serial.println(humidity, 1);
   dataString += String(int((humidity)));
-  dataString += "\n";
+  dataString += "\r\n";
   //Serial.print("DHT1122-Celsius ");
   dataString += "DHT1122-Celsius ";
   //Serial.println(temperature);
   dataString += String(int((temperature)));
-  dataString += "\n";
+  dataString += "\r\n";
   //Serial.print("DHT1122-Fahrenheit ");
   dataString += "DHT1122-Fahrenheit ";
   //Serial.println(dht.toFahrenheit(temperature), 1);
   dataString += String(int((dht.toFahrenheit(temperature))));
-  dataString += "\n";
+  dataString += "\r\n";
   // print the results to the serial monitor:
   dataString += "DHT1122 ";
   dataString += " dog = ";
@@ -547,7 +547,7 @@ void printOutput () {
   dataString += String(int((sensorHighValue)));
   dataString += " sensorLo = ";
   dataString += String(int((sensorLowValue)));
-  dataString += "\n";
+  dataString += "\r\n";
   // And show some interesting results.
   dataString += "DHT1122 ";
   dataString += " aveOn= ";
@@ -567,7 +567,7 @@ void printOutput () {
   dataString += "StdDev: "; 
   dataString += String(int((aveOff.stddev())));
   dataString += "3478-ENDTRANSMISSION";
-  dataString += "\n";
+  dataString += "\r\n";
   Serial.print(dataString);
   if(countZero == 0){
    /*backgroundColor = ST7735_BLACK;*/
