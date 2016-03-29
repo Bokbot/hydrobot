@@ -155,9 +155,9 @@ as well as Adafruit raw 1.8" TFT display
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library
-#include <SPI.h>
+//#include <Adafruit_GFX.h>    // Core graphics library
+//#include <Adafruit_ST7735.h> // Hardware-specific library
+//#include <SPI.h>
 #include <Average.h>
 
 
@@ -423,6 +423,7 @@ bool checkThrottle(unsigned long throttle, int dog){
   // if the pump is on
   if(pumpOn == 1){
   // calculate how long the pump is on
+    timeOn = millis();
     pumpOnTimes[fiveOn] = timeOn - timeOff;
     // if the pump on time is less than the minimum pump on time
     if(pumpOnTimes[fiveOn] < pumpOnTimeMin){
@@ -433,6 +434,7 @@ bool checkThrottle(unsigned long throttle, int dog){
   // if the pump is off
   if(pumpOn == 0){
   // calculate how long the pump has been off
+    timeOff = millis();
     pumpOffTimes[fiveOff] = timeOff - timeOn;
     // if the pump off time is less than the minimum pump off time
     if(pumpOffTimes[fiveOff] < pumpOffTimeMin){
