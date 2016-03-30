@@ -85,8 +85,8 @@ bool flop;
 bool pumpOn;
 bool PIDpumpOn;
 
-int dryLimit = 855;        // this is the value of dryness we don't want to exceed
-int wetLimit = 220;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
+int dryLimit = 255;        // this is the value of dryness we don't want to exceed
+int wetLimit = 920;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
 int sensorValue1 = 0;        // value read from the pot
 int sensorValue2 = 0;        // value read from the pot
 int sensorValue3 = 0;        // value read from the pot
