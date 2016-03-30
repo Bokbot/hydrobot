@@ -393,8 +393,8 @@ void printOutput () {
   dataString += "wetL= ";
   dataString += String(wetLimit);
   dataString += "\r\n";
-  dataString += "countOff= ";
-  dataString += String((countdownOff()));
+  /*dataString += "countOff= ";*/
+  /*dataString += String((countdownOff()));*/
   dataString += "onCountMin= ";
   dataString += String(onCountMin());
   dataString += "pumpOnCount= ";
