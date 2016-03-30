@@ -542,9 +542,9 @@ void printOutput () {
   dataString += " dog = ";
   dataString += String(int((watchdog)));
   dataString += " pumpOnTimes[fiveOn] = ";
-  dataString += String(int((pumpOnTimes[fiveOn])));
+  dataString += String((pumpOnTimes[fiveOn]));
   dataString += " pumpOffTimes[fiveOff] = ";
-  dataString += String(int((pumpOffTimes[fiveOff])));
+  dataString += String((pumpOffTimes[fiveOff]));
   dataString += " sensorHi = ";
   dataString += String(int((sensorHighValue)));
   dataString += " sensorLo = ";
