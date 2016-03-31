@@ -143,6 +143,11 @@ int sensorValue2 = 0;        // value read from the pot
 int sensorValue3 = 0;        // value read from the pot
 int sensorValue4 = 0;        // value read from the pot
 int sensorValue5 = 0;        // value read from the pot
+int moistureValue1 = 0;        // value read from the pot
+int moistureValue2 = 0;        // value read from the pot
+int moistureValue3 = 0;        // value read from the pot
+int moistureValue4 = 0;        // value read from the pot
+int moistureValue5 = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 int sensorLowValue = 1024;
 int sensorHighValue = 0;
@@ -372,28 +377,18 @@ void printOutput () {
   //Serial.print("DHT1122-Moisture1 ");
   dataString += "DHT1122-Moisture1 ";
   //Serial.println(sensorValue1);
-  dataString += String(int((sensorValue1)));
+  dataString += String(int((moistureValue1)));
   dataString += "\r\n";
   //Serial.print("DHT1122-Moisture2 ");
   dataString += "DHT1122-Moisture2 ";
   //Serial.println(sensorValue2);
-  dataString += String(int((sensorValue2)));
+  dataString += String(int((moistureValue2)));
   dataString += "\r\n";
   //Serial.print("DHT1122-Moisture3 ");
   dataString += "DHT1122-Moisture3 ";
   //Serial.println(sensorValue3);
-  dataString += String(int((sensorValue3)));
+  dataString += String(int((moistureValue3)));
   dataString += "\r\n";
-  //Serial.print("DHT1122-Moisture4 ");
-  dataString += "DHT1122-Moisture4 ";
-  //Serial.println(sensorValue4);
-  dataString += String(int((sensorValue4)));
-  dataString += "\r\n";
-  //Serial.print("DHT1122-Moisture5 ");
-  dataString += "DHT1122-Moisture5 ";
-  //Serial.println(sensorValue5);
-  dataString += String(int((sensorValue5)));
-  //Serial.print("DHT1122-Humidity ");
   dataString += "DHT1122-Humidity ";
   //Serial.println(humidity, 1);
   dataString += String(int((humidity)));
@@ -715,6 +710,8 @@ void loop() {
   // read the analog in value:
   //sensorValue1 = analogRead(analogInPin1);
   sensorValue1 = SoilMoisture(); // assign the result of SoilMoisture() to the global variable 'moisture'
+  moistureValue1 = 1023 - sensorValue1;
+  /*moistureValue1 =  sensorValue1;*/
   // old method
   /*sensorValue2 = analogRead(analogInPin2);*/
   /*sensorValue3 = analogRead(analogInPin3);*/
@@ -744,32 +741,32 @@ void loop() {
     // eventual functualize this next block
     // checkSensors( sensorValue1 );
     //
-    if(sensorValue1 < dryLimit) {
+    if(moistureValue1 < dryLimit) {
       turnOnPump();
       // dryLimit = dryLimit + nudge;
-      dryLimit = dryLimit - nudge - ( 0.25 * (dryLimit - sensorValue1));
+      dryLimit = dryLimit - nudge - ( 0.25 * (dryLimit - moistureValue1));
       //Serial.print("pumpon");
       //printOutput();
     }
-    if(sensorValue1 > wetLimit) {
+    if(moistureValue1 > wetLimit) {
       turnOffPump();
       // wetLimit = wetLimit - nudge;
-      wetLimit = wetLimit + nudge + ( 0.25 * (sensorValue1 - wetLimit));
+      wetLimit = wetLimit + nudge + ( 0.25 * (moistureValue1 - wetLimit));
       //Serial.print("pumpoff");
       //printOutput();
     }
 
-    if(sensorValue1 > sensorHighValue) {
-      sensorHighValue = sensorValue1;
+    if(moistureValue1 > sensorHighValue) {
+      sensorHighValue = moistureValue1;
     }
-    if(sensorValue1 < sensorLowValue) {
-      sensorLowValue = sensorValue1;
+    if(moistureValue1 < sensorLowValue) {
+      sensorLowValue = moistureValue1;
     }
     if(pumpOn == 1){
       timeOn = millis();
       pumpOnTimes[fiveOn] = timeOn - timeOff;
       if(pumpOnTimes[fiveOn] > pumpOnTimeMax){
-        wetLimit = wetLimit - yank - ( 0.5 * (wetLimit - sensorValue1));
+        wetLimit = wetLimit - yank - ( 0.5 * (wetLimit - moistureValue1));
         turnOffPump();
         //Serial.print("pumpon by min");
         //printOutput();
@@ -779,7 +776,7 @@ void loop() {
       timeOff = millis();
       pumpOffTimes[fiveOff] = timeOff - timeOn;
       if(pumpOffTimes[fiveOff] > pumpOffTimeMax){
-        dryLimit = dryLimit + yank + ( 0.5 * (sensorValue1 - dryLimit));
+        dryLimit = dryLimit + yank + ( 0.5 * (moistureValue1 - dryLimit));
         turnOnPump();
         //Serial.print("pumpon by max");
         //printOutput();
@@ -801,4 +798,4 @@ void loop() {
   }
 
     myDelay();
-} //end loop
+/*} //end loop*/
