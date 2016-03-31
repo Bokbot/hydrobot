@@ -444,8 +444,8 @@ void printOutput () {
   dataString += "wetL= ";
   dataString += String(wetLimit);
   dataString += "\r\n";
-  dataString += "countOff= ";
-  dataString += String((countdownOff()));
+  /*dataString += "countOff= ";*/
+  /*dataString += String((countdownOff()));*/
   dataString += "onCountMin= ";
   dataString += String(onCountMin());
   dataString += "pumpOnCount= ";
@@ -600,21 +600,29 @@ void setup() {
 
   // Relay Pins
   pinMode(relayPin1, OUTPUT);
-  digitalWrite(relayPin1, LOW);
+  //digitalWrite(relayPin1, LOW);
+  digitalWrite(relayPin1, HIGH);
   pinMode(relayPin2, OUTPUT);
-  digitalWrite(relayPin2, LOW);
+  //digitalWrite(relayPin2, LOW);
+  digitalWrite(relayPin2, HIGH);
   pinMode(relayPin3, OUTPUT);
-  digitalWrite(relayPin3, LOW);
+  //digitalWrite(relayPin3, LOW);
+  digitalWrite(relayPin3, HIGH);
   pinMode(relayPin4, OUTPUT);
-  digitalWrite(relayPin4, LOW);
+  /*digitalWrite(relayPin4, LOW);*/
+  digitalWrite(relayPin4, HIGH);
   pinMode(relayPin5, OUTPUT);
-  digitalWrite(relayPin5, LOW);
+  /*digitalWrite(relayPin5, LOW);*/
+  digitalWrite(relayPin5, HIGH);
   pinMode(relayPin6, OUTPUT);
-  digitalWrite(relayPin6, LOW);
+  /*digitalWrite(relayPin6, LOW);*/
+  digitalWrite(relayPin6, HIGH);
   pinMode(relayPin7, OUTPUT);
-  digitalWrite(relayPin7, LOW);
+  /*digitalWrite(relayPin7, LOW);*/
+  digitalWrite(relayPin7, HIGH);
   pinMode(relayPin8, OUTPUT);
-  digitalWrite(relayPin8, LOW);
+  /*digitalWrite(relayPin8, LOW);*/
+  digitalWrite(relayPin8, HIGH);
   timeOn = millis();
   delay(2);
   timeOff = millis();
