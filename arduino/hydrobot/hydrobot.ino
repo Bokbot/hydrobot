@@ -30,6 +30,53 @@ String dataString = "";
 #define RELAY_PIN 6
 
 #include <Wire.h>
+const byte SlaveDeviceId = 108;
+byte LastMasterCommand = 0;
+int a, b, c, d, e;
+
+void receiveDataPacket(int howMany){
+  //  if (howMany != 11) return; // Error
+  LastMasterCommand = Wire.read();
+  a = Wire.read() << 8 | Wire.read();
+  b = Wire.read() << 8 | Wire.read();
+  c = Wire.read() << 8 | Wire.read();
+  d = Wire.read() << 8 | Wire.read();
+  e = Wire.read() << 8 | Wire.read();
+}
+
+void slavesRespond(){
+ 
+  int returnValue = 0;
+ 
+  switch(LastMasterCommand){
+    case 0:   // No new command was received
+       returnValue = 1; // i.e. error code #1
+    break;
+    
+    case 1:   // Some function
+      
+    break;
+ 
+    case 2:   // Our test function
+      returnValue = sumFunction(a,b,c,d,e);  
+    break;
+ 
+  }
+ 
+  byte buffer[2];              // split int value into two bytes buffer
+  buffer[0] = returnValue >> 8;
+  buffer[1] = returnValue & 255;
+  Wire.write(buffer, 2);       // return response to last command
+  LastMasterCommand = 0;       // null last Master's command
+}
+ 
+int sumFunction(int aa, int bb, int cc, int dd, int ee){  
+  // of course for summing 5 integers You need long type of return,
+  // but this is only illustration. Test values doesn't overflow
+ 
+  int result = aa + bb + cc + dd + ee;
+  return result;
+}
 
 #include <Time.h>
 #define TIME_MSG_LEN  11   // time sync to PC is HEADER followed by unix time_t as ten ascii digits
@@ -525,12 +572,12 @@ int SoilMoisture(){
 // LCD init END
 
 void setup() {
-  // Start the I2C Bus as Slave on address 9
-  Wire.begin(108);                // join i2c bus with address #8
-  // Attach a function to trigger when something is requested.
-  Wire.onRequest(requestEvent); // register event
+  // Start the I2C Bus as Slave  
+  Wire.begin(SlaveDeviceId);      // join i2c bus with Slave ID
   // Attach a function to trigger when something is received.
-  Wire.onReceive(receiveEvent);
+  Wire.onReceive(receiveDataPacket); // register talk event
+  // Attach a function to trigger when something is requested.
+  Wire.onRequest(slavesRespond);  // register callback event
   // initialize serial communications at 9600 bps:
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   serialthrottleTime = (millis() + 5);
