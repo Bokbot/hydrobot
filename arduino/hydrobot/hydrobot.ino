@@ -251,7 +251,7 @@ unsigned long onCountMin() {
 }
 
 void turnOnPump () {
-  digitalWrite(relayPin3, HIGH);
+  digitalWrite(relayPin3, LOW);
   pumpOnCount++;
   pumpOn = 1;
   timeOff = millis();
@@ -266,7 +266,7 @@ void turnOnPump () {
 }
 
 void turnOffPump () {
-  digitalWrite(relayPin3, LOW);
+  digitalWrite(relayPin3, HIGH);
   pumpOn = 0;
   timeOn = millis();
   pumpOnTimes[fiveOn] = timeOn - timeOff;
