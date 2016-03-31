@@ -43,6 +43,14 @@ void receiveDataPacket(int howMany){
   d = Wire.read() << 8 | Wire.read();
   e = Wire.read() << 8 | Wire.read();
 }
+ 
+int sumFunction(int aa, int bb, int cc, int dd, int ee){  
+  // of course for summing 5 integers You need long type of return,
+  // but this is only illustration. Test values doesn't overflow
+ 
+  int result = aa + bb + cc + dd + ee;
+  return result;
+}
 
 void slavesRespond(){
  
@@ -68,14 +76,6 @@ void slavesRespond(){
   buffer[1] = returnValue & 255;
   Wire.write(buffer, 2);       // return response to last command
   LastMasterCommand = 0;       // null last Master's command
-}
- 
-int sumFunction(int aa, int bb, int cc, int dd, int ee){  
-  // of course for summing 5 integers You need long type of return,
-  // but this is only illustration. Test values doesn't overflow
- 
-  int result = aa + bb + cc + dd + ee;
-  return result;
 }
 
 #include <Time.h>
@@ -450,8 +450,8 @@ void printOutput () {
   dataString += String(onCountMin());
   dataString += "pumpOnCount= ";
   dataString += String(pumpOnCount);
-  dataString += "PIDoutput= ";
-  dataString += String(Output);
+  /*dataString += "PIDoutput= ";*/
+  /*dataString += String(Output);*/
   dataString += "\r\n";
   dataString += "3478-ENDTRANSMISSION";
   dataString += "\r\n";
