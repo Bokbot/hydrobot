@@ -36,6 +36,10 @@ String dataString = "";
 #define TIME_HEADER  'T'   // Header tag for serial time sync message
 #define TIME_REQUEST  7    // ASCII bell character requests a time sync message 
 
+#define moisture_input 0
+#define divider_top 12
+#define divider_bottom 13
+
 const int VAL_PROBE1 = 0; // Analog pin 0
 const int VAL_PROBE2 = 1; // Analog pin 1
 const int VAL_PROBE3 = 2; // Analog pin 2
@@ -491,18 +495,42 @@ void printOutput () {
   /*tft.print(PIDpumpOn);*/
 } 
 
-void requestEvent() {
-  Wire.write("hello "); // respond with message of 6 bytes
-  //Wire.write(dataString); // respond with giant message of unknown bytes
 
-    // as expected by master
+int SoilMoisture(){
+  int reading;
+
+  // drive a current through the divider in one direction
+  digitalWrite(divider_top,LOW);
+  digitalWrite(divider_bottom,HIGH);
+
+  // wait a moment for capacitance effects to settle
+  delay(200);
+
+  // take a reading
+  reading=analogRead(moisture_input);
+
+  // reverse the current
+  digitalWrite(divider_top,HIGH);
+  digitalWrite(divider_bottom,LOW);
+
+  // give as much time in 'reverse' as in 'forward'
+  delay(200);
+
+  // stop the current
+  digitalWrite(divider_bottom,LOW);
+
+  return reading;
 }
 
 // LCD init END
 
 void setup() {
+  // Start the I2C Bus as Slave on address 9
   Wire.begin(108);                // join i2c bus with address #8
+  // Attach a function to trigger when something is requested.
   Wire.onRequest(requestEvent); // register event
+  // Attach a function to trigger when something is received.
+  Wire.onReceive(receiveEvent);
   // initialize serial communications at 9600 bps:
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   serialthrottleTime = (millis() + 5);
@@ -517,6 +545,13 @@ void setup() {
   dht.setup(DHT_PIN); // data pin
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
+
+  // Soil Moisture sensor
+  // set driver pins to outputs
+  pinMode(divider_top,OUTPUT);
+  pinMode(divider_bottom,OUTPUT);
+
+  // Relay Pins
   pinMode(relayPin1, OUTPUT);
   digitalWrite(relayPin1, LOW);
   pinMode(relayPin2, OUTPUT);
@@ -623,11 +658,13 @@ void loop() {
   watchdog++;
   watchdog2++;
   // read the analog in value:
-  sensorValue1 = analogRead(analogInPin1);
-  sensorValue2 = analogRead(analogInPin2);
-  sensorValue3 = analogRead(analogInPin3);
-  sensorValue4 = analogRead(analogInPin4);
-  sensorValue5 = analogRead(analogInPin5);
+  //sensorValue1 = analogRead(analogInPin1);
+  sensorValue1 = SoilMoisture(); // assign the result of SoilMoisture() to the global variable 'moisture'
+  // old method
+  /*sensorValue2 = analogRead(analogInPin2);*/
+  /*sensorValue3 = analogRead(analogInPin3);*/
+  /*sensorValue4 = analogRead(analogInPin4);*/
+  /*sensorValue5 = analogRead(analogInPin5);*/
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
   //directOutput(sensorValue1);
