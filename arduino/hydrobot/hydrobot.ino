@@ -30,6 +30,20 @@ String dataString = "";
 #define RELAY_PIN 6
 
 #include <Wire.h>
+#define ezophaddress 99               //default I2C ID number for EZO pH Circuit.
+
+
+
+char computerdata[20];           //we make a 20 byte character array to hold incoming data from a pc/mac/other.   
+byte received_from_computer=0;   //we need to know how many characters have been received.    
+byte serial_event=0;             //a flag to signal when data has been received from the pc/mac/other. 
+byte code=0;                     //used to hold the I2C response code. 
+char ph_data[20];                //we make a 20 byte character array to hold incoming data from the pH circuit. 
+byte in_char=0;                  //used as a 1 byte buffer to store in bound bytes from the pH Circuit.   
+byte i=0;                        //counter used for ph_data array. 
+int time_=1800;                   //used to change the delay needed depending on the command sent to the EZO Class pH Circuit. 
+float ph_float;                  //float var used to hold the float value of the pH. 
+
 const byte SlaveDeviceId = 108;
 byte LastMasterCommand = 0;
 int a, b, c, d, e;
@@ -136,8 +150,8 @@ bool flop;
 bool pumpOn;
 bool PIDpumpOn;
 
-int dryLimit = 255;        // this is the value of dryness we don't want to exceed
-int wetLimit = 920;        // this is the vale of wetness we don't want to go above (below 320 is wetter)
+int dryLimit = 555;        // this is the value of dryness we don't want to go below
+int wetLimit = 900;        // this is the vale of wetness we don't want to go above
 int sensorValue1 = 0;        // value read from the pot
 int sensorValue2 = 0;        // value read from the pot
 int sensorValue3 = 0;        // value read from the pot
@@ -439,6 +453,7 @@ void printOutput () {
   dataString += String(int(aveOff.mode()));
   dataString += "StdDev: "; 
   dataString += String(int(aveOff.stddev()));
+  dataString += "\r\n";
   dataString += "dryL= ";
   dataString += String(dryLimit);
   dataString += "wetL= ";
