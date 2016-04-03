@@ -1,7 +1,8 @@
 # Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
 
 #include ../../Arduino.mk
-ARDUINO_LIBS = Average Arduino-PID-Library Adafruit_GFX_Library Adafruit_ST7735_Library SPI Wire Time
+# ARDUINO_LIBS = Average Arduino-PID-Library Adafruit_GFX_Library Adafruit_ST7735_Library SPI Wire Time
+ARDUINO_LIBS = Average Arduino-PID-Library SPI Wire Time
 MONITOR_PORT = /dev/ttyACM0
 MONITOR_BAUDRATE  = 115200
 #BOARD_TAG   = nano
