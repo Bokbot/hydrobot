@@ -1,26 +1,11 @@
 /*
-  Analog input, analog output, serial output
-
-  Reads an analog input pin, maps the result to a range from 0 to 255
-  and uses the result to set the pulsewidth modulation (PWM) of an output pin.
-  Also prints the results to the serial monitor.
-
-  The circuit:
-   potentiometer connected to analog pin 0.
-   Center pin of the potentiometer goes to the analog pin.
-   side pins of the potentiometer go to +5V and ground
-   LED connected from digital pin 9 to ground
-
-  created 29 Dec. 2008
-  modified 9 Apr 2012
-  by Tom Igoe
-
-  This example code is in the public domain.
 
 */
+#define SSD1306_128_64
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+
 
 #define OLED_RESET 4
 Adafruit_SSD1306 display(OLED_RESET);
@@ -1175,46 +1160,6 @@ void loop() {
   //  PID start
   Input = analogRead(PIN_INPUT);
   myPID.Compute();
-
-  /*if(serial_event){            //if the serial_event=1.*/
-    /*if(computerdata[0]=='c'||computerdata[0]=='r')time_=1800; //if a command has been sent to calibrate or take a reading we wait 1800ms so that the circuit has time to take the reading.  */
-    /*else time_=300;         //if any other command has been sent we wait only 300ms.*/
-    /*Wire.beginTransmission(address); //call the circuit by its ID number.*/
-    /*Wire.write(computerdata);        //transmit the command that was sent through the serial port.*/
-    /*Wire.endTransmission();          //end the I2C data transmission.*/
-    /*delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.*/
-    /*Wire.requestFrom(address,20,1); //call the circuit and request 20 bytes (this may be more than we need)*/
-    /*code=Wire.read();               //the first byte is the response code, we read this separately.*/
-    /*switch (code){                  //switch case based on what the response code is.*/
-      /*case 1:                       //decimal 1.*/
-        /*Serial.println("Success");  //means the command was successful.*/
-      /*break;                        //exits the switch case.*/
-
-     /*case 2:                        //decimal 2.*/
-       /*Serial.println("Failed");    //means the command has failed.*/
-     /*break;                         //exits the switch case.*/
-
-     /*case 254:                      //decimal 254.*/
-       /*Serial.println("Pending");   //means the command has not yet been finished calculating.*/
-     /*break;                         //exits the switch case.*/
-
-     /*case 255:                      //decimal 255.*/
-       /*Serial.println("No Data");   //means there is no further data to send.*/
-     /*break;                         //exits the switch case.*/
-    /*}*/
-    /*while(Wire.available()){          //are there bytes to receive.*/
-     /*in_char = Wire.read();           //receive a byte.*/
-     /*ph_data[i]= in_char;             //load this byte into our array.*/
-     /*i+=1;                            //incur the counter for the array element.*/
-      /*if(in_char==0){                 //if we see that we have been sent a null command.*/
-          /*i=0;                        //reset the counter i to 0.*/
-          /*Wire.endTransmission();     //end the I2C data transmission.*/
-          /*break;                      //exit the while loop.*/
-      /*}*/
-    /*}*/
-    /*Serial.println(ph_data);          //print the data.*/
-    /*serial_event=0;                   //reset the serial event flag.*/
-  /*}*/
   /************************************************
    * turn the output pin on/off based on pid output
    ************************************************/
@@ -1232,29 +1177,19 @@ void loop() {
   }
   // PID end
 
-  /*int minat = 0;*/
-  /*int maxat = 0;*/
   watchdog++;
   watchdog2++;
-  // read the analog in value:
-  //sensorValue1 = analogRead(analogInPin1);
+  // read the moisture value:
   sensorValue1 = SoilMoisture(); // assign the result of SoilMoisture() to the global variable 'moisture'
   moistureValue1 = 1023 - sensorValue1;
-  /*moistureValue1 =  sensorValue1;*/
-  // old method
-  /*sensorValue2 = analogRead(analogInPin2);*/
-  /*sensorValue3 = analogRead(analogInPin3);*/
-  /*sensorValue4 = analogRead(analogInPin4);*/
-  /*sensorValue5 = analogRead(analogInPin5);*/
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
   //directOutput(sensorValue1);
 
   ok = checkThrottle( throttleTime, watchdog );
   ok2 = serialcheckThrottle( serialthrottleTime, watchdog2 );
-  // Serial.print(ok);
-  // Serial.println(" = ok");
   if(ok2 == 1) {
+    // Serial.println(" = ok");
     ph_float = readpH();
     printOutput();
     ok2 = 0;
@@ -1325,6 +1260,46 @@ void loop() {
      // Serial.print(millis());
      // Serial.println("skip");
     }
+
+  /*if(serial_event){            //if the serial_event=1.*/
+    /*if(computerdata[0]=='c'||computerdata[0]=='r')time_=1800; //if a command has been sent to calibrate or take a reading we wait 1800ms so that the circuit has time to take the reading.  */
+    /*else time_=300;         //if any other command has been sent we wait only 300ms.*/
+    /*Wire.beginTransmission(address); //call the circuit by its ID number.*/
+    /*Wire.write(computerdata);        //transmit the command that was sent through the serial port.*/
+    /*Wire.endTransmission();          //end the I2C data transmission.*/
+    /*delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.*/
+    /*Wire.requestFrom(address,20,1); //call the circuit and request 20 bytes (this may be more than we need)*/
+    /*code=Wire.read();               //the first byte is the response code, we read this separately.*/
+    /*switch (code){                  //switch case based on what the response code is.*/
+      /*case 1:                       //decimal 1.*/
+        /*Serial.println("Success");  //means the command was successful.*/
+      /*break;                        //exits the switch case.*/
+
+     /*case 2:                        //decimal 2.*/
+       /*Serial.println("Failed");    //means the command has failed.*/
+     /*break;                         //exits the switch case.*/
+
+     /*case 254:                      //decimal 254.*/
+       /*Serial.println("Pending");   //means the command has not yet been finished calculating.*/
+     /*break;                         //exits the switch case.*/
+
+     /*case 255:                      //decimal 255.*/
+       /*Serial.println("No Data");   //means there is no further data to send.*/
+     /*break;                         //exits the switch case.*/
+    /*}*/
+    /*while(Wire.available()){          //are there bytes to receive.*/
+     /*in_char = Wire.read();           //receive a byte.*/
+     /*ph_data[i]= in_char;             //load this byte into our array.*/
+     /*i+=1;                            //incur the counter for the array element.*/
+      /*if(in_char==0){                 //if we see that we have been sent a null command.*/
+          /*i=0;                        //reset the counter i to 0.*/
+          /*Wire.endTransmission();     //end the I2C data transmission.*/
+          /*break;                      //exit the while loop.*/
+      /*}*/
+    /*}*/
+    /*Serial.println(ph_data);          //print the data.*/
+    /*serial_event=0;                   //reset the serial event flag.*/
+  /*}*/
   }
 
     myDelay();
