@@ -46,7 +46,7 @@ DHT dht;
 
 String dataString = "";
 //PID section
-#include <PID_v1.h>
+//#include <PID_v1.h>
 
 #define PIN_INPUT 0
 #define RELAY_PIN 6
@@ -126,7 +126,7 @@ double Setpoint, Input, Output;
 
 //Specify the links and initial tuning parameters
 double Kp=2, Ki=5, Kd=1;
-PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+//PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 unsigned long WindowSize = 30000; // 30 seconds = 30,000 ms
 unsigned long windowStartTime;
@@ -1125,16 +1125,16 @@ void setup() {
   // turnOffPump();
 
   // PID start
-  windowStartTime = millis();
+  //windowStartTime = millis();
 
   //initialize the variables we're linked to
   Setpoint = 512;
 
   //tell the PID to range between 0 and the full window size
-  myPID.SetOutputLimits(0, WindowSize);
+  //myPID.SetOutputLimits(0, WindowSize);
 
   //turn the PID on
-  myPID.SetMode(AUTOMATIC);
+  //myPID.SetMode(AUTOMATIC);
   // PID end
   ph_float = readpH();
 
@@ -1159,7 +1159,7 @@ void loop() {
   countZero++;
   //  PID start
   Input = analogRead(PIN_INPUT);
-  myPID.Compute();
+  //myPID.Compute();
   /************************************************
    * turn the output pin on/off based on pid output
    ************************************************/
