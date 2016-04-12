@@ -2,7 +2,8 @@
 
 #include ../../Arduino.mk
 # ARDUINO_LIBS = Average Arduino-PID-Library Adafruit_GFX_Library Adafruit_ST7735_Library SPI Wire Time
-ARDUINO_LIBS = Average Adafruit_GFX Arduino-PID-Library SPI Wire Time Adafruit_SSD1306
+# ARDUINO_LIBS = Average Adafruit_GFX Arduino-PID-Library SPI Wire Time Adafruit_SSD1306
+ARDUINO_LIBS = Average  Arduino-PID-Library SPI Wire Time
 MONITOR_PORT = /dev/ttyACM0
 MONITOR_BAUDRATE  = 115200
 #BOARD_TAG   = nano
