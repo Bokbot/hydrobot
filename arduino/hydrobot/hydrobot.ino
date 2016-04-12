@@ -53,6 +53,8 @@ String dataString = "";
 
 #include <Wire.h>
 #define ezophaddress 99               //default I2C ID number for EZO pH Circuit.
+#define ezoecddress 98               //default I2C ID number for EZO EC Circuit.
+#define arduinoMaster 108               //default I2C ID number for Master Arduino.
 
 char computerdata[20];           //we make a 20 byte character array to hold incoming data from a pc/mac/other.   
 byte received_from_computer=0;   //we need to know how many characters have been received.    
@@ -64,7 +66,7 @@ byte i=0;                        //counter used for ph_data array.
 int time_=1800;                   //used to change the delay needed depending on the command sent to the EZO Class pH Circuit. 
 float ph_float;                  //float var used to hold the float value of the pH. 
 
-const byte SlaveDeviceId = 108;
+const byte SlaveDeviceId = 107;
 byte LastMasterCommand = 0;
 int a, b, c, d, e;
 
@@ -552,6 +554,10 @@ void printOutput () {
   dataString += "3478-ENDTRANSMISSION";
   dataString += "\r\n";
   Serial.print(dataString);
+  Wire.beginTransmission(44);
+  //Wire.write(dataString);
+  Wire.write('r');
+  Wire.endTransmission();
   display.print(dataString);
   if(countZero == 0){
    /*backgroundColor = ST7735_BLACK;*/
