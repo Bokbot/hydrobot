@@ -36,6 +36,7 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
   B01110000, B01110000,
   B00000000, B00110000 };
 
+
 #include "DHT.h"
 const int DHT_PIN = 2; // digital pin 2
 DHT dht;
@@ -65,50 +66,6 @@ float ph_float;                  //float var used to hold the float value of the
 const byte SlaveDeviceId = 107;
 byte LastMasterCommand = 0;
 int a, b, c, d, e;
-
-void receiveDataPacket(int howMany){
-  //  if (howMany != 11) return; // Error
-  LastMasterCommand = Wire.read();
-  a = Wire.read() << 8 | Wire.read();
-  b = Wire.read() << 8 | Wire.read();
-  c = Wire.read() << 8 | Wire.read();
-  d = Wire.read() << 8 | Wire.read();
-  e = Wire.read() << 8 | Wire.read();
-}
- 
-int sumFunction(int aa, int bb, int cc, int dd, int ee){  
-  // of course for summing 5 integers You need long type of return,
-  // but this is only illustration. Test values doesn't overflow
- 
-  int result = aa + bb + cc + dd + ee;
-  return result;
-}
-
-void slavesRespond(){
- 
-  int returnValue = 0;
- 
-  switch(LastMasterCommand){
-    case 0:   // No new command was received
-       returnValue = 1; // i.e. error code #1
-    break;
-    
-    case 1:   // Some function
-      
-    break;
- 
-    case 2:   // Our test function
-      returnValue = sumFunction(a,b,c,d,e);  
-    break;
- 
-  }
- 
-  byte buffer[2];              // split int value into two bytes buffer
-  buffer[0] = returnValue >> 8;
-  buffer[1] = returnValue & 255;
-  Wire.write(buffer, 2);       // return response to last command
-  LastMasterCommand = 0;       // null last Master's command
-}
 
 #include <Time.h>
 #define TIME_MSG_LEN  11   // time sync to PC is HEADER followed by unix time_t as ten ascii digits
@@ -641,6 +598,127 @@ void printOutput () {
   /*tft.print(PIDpumpOn);*/
 } 
 
+void receiveDataPacket(int howMany){
+  //  if (howMany != 11) return; // Error
+  LastMasterCommand = Wire.read();
+  a = Wire.read() << 8 | Wire.read();
+  b = Wire.read() << 8 | Wire.read();
+  c = Wire.read() << 8 | Wire.read();
+  d = Wire.read() << 8 | Wire.read();
+  e = Wire.read() << 8 | Wire.read();
+}
+ 
+int sumFunction(int aa, int bb, int cc, int dd, int ee){  
+  // of course for summing 5 integers You need long type of return,
+  // but this is only illustration. Test values doesn't overflow
+ 
+  int result = aa + bb + cc + dd + ee;
+  return result;
+}
+
+void slavesRespond(){
+ 
+  int returnValue = 0;
+ 
+  switch(LastMasterCommand){
+    case 0:   // No new command was received
+       returnValue = 1; // i.e. error code #1
+    break;
+    
+    case 1:   // Some function
+      returnValue = ok;
+    break;
+ 
+    case 2:   // Our test function
+      returnValue = sumFunction(a,b,c,d,e);  
+    break;
+
+    case 3:  // return watchdog value
+      returnValue = watchdog;
+    break;
+
+    case 4:
+      returnValue = moistureValue1;
+    break;
+
+    case 5:
+      returnValue = moistureValue2;
+    break;
+
+    case 6:
+      returnValue = moistureValue3;
+    break;
+
+    case 7:
+      returnValue = ok2;
+    break;
+
+    case 8:
+      // this is in celsius
+      returnValue = int(temperature * 10 );
+    break;
+
+    case 9:
+      // this is in farenheit
+      returnValue = int(dht.toFahrenheit(temperature) * 10 );
+    break;
+
+    case 10:
+      returnValue = int(humidity);
+    break;
+
+    case 11:
+      returnValue = ok;
+    break;
+
+    case 12:
+      returnValue = pumpOnTimes[fiveOn];
+    break;
+
+    case 13:
+      returnValue = pumpOffTimes[fiveOff];
+    break;
+
+    case 14:
+      returnValue = sensorHighValue;
+    break;
+
+    case 15:
+      returnValue = sensorLowValue;
+    break;
+
+    case 16:
+      returnValue = aveOn.mean();
+    break;
+
+    case 17:
+      returnValue = aveOff.mean();
+    break;
+
+    case 18:
+      returnValue = dryLimit;
+    break;
+
+    case 19:
+      returnValue = wetLimit;
+    break;
+
+    case 20:
+      returnValue = onCountMin();
+    break;
+
+    case 21:
+      returnValue = pumpOnCount;
+    break;
+ 
+  }
+ 
+  byte buffer[2];              // split int value into two bytes buffer
+  buffer[0] = returnValue >> 8;
+  buffer[1] = returnValue & 255;
+  Wire.write(buffer, 2);       // return response to last command
+  LastMasterCommand = 0;       // null last Master's command
+}
 
 int SoilMoisture(){
   int reading;
@@ -731,7 +809,7 @@ float readpH() {
 
 void setup() {
   // Start the I2C Bus as Master
-  Wire.begin();      // join i2c bus as master
+  //Wire.begin();      // join i2c bus as master
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
 //  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x64)
   // init done
@@ -743,13 +821,13 @@ void setup() {
   //delay(2000);
 
   // Start the I2C Bus as Slave  
-  //Wire.begin(SlaveDeviceId);      // join i2c bus with Slave ID
+  Wire.begin(SlaveDeviceId);      // join i2c bus with Slave ID
 
 
   // Attach a function to trigger when something is received.
-  //Wire.onReceive(receiveDataPacket); // register talk event
+  Wire.onReceive(receiveDataPacket); // register talk event
   // Attach a function to trigger when something is requested.
-  //Wire.onRequest(slavesRespond);  // register callback event
+  Wire.onRequest(slavesRespond);  // register callback event
   // initialize serial communications at 9600 bps:
   throttleTime = (millis() + 30000); // 30,000 ms = 30 seconds
   serialthrottleTime = (millis() + 5);
