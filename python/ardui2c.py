@@ -37,13 +37,13 @@ class monitaur_i2c:
         string += "\00"
         self.file_write.write(string)
 
-    def yank(self, num_of_bytes = 2):
+    def yank(self, num_of_bytes = 15):
         # reads a specified number of bytes from I2C, then parses and displays the result
         res = self.file_read.read(num_of_bytes) # read from the board
         response = filter(lambda x: x != '\x00', res) # remove the null characters to get the response
         if(ord(response[0]) == 1): # if the response isnt an error
             char_list = map(lambda x: chr(ord(x) & ~0x80), list(response[1:])) # change MSB to 0 for all received characters except the first and get a list of characters
-            receivedInt = char_list[0] << 8 | char_list[1]
+            receivedInt = ord(response[0]) << 8 | ord(response[1])
             # NOTE: having to change the MSB to 0 is a glitch in the raspberry pi, and you shouldn't have to do this!
             return "Command succeeded " + ''.receivedInt # convert the char list to a string and returns it
         else:
