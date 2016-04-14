@@ -6,6 +6,9 @@
 ARDUINO_LIBS = Average  Arduino-PID-Library SPI Wire Time
 MONITOR_PORT = /dev/ttyACM0
 MONITOR_BAUDRATE  = 115200
+#BOARD_TAG    = mega
+#BOARD_SUB    = atmega2560
+#ARDUINO_PORT = /dev/ttyACM0
 #BOARD_TAG   = nano
 #BOARD_SUB   = atmega328
 include /usr/share/arduino/Arduino.mk
