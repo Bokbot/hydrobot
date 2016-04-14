@@ -75,6 +75,22 @@ class monitaur_i2c:
 
         return self.read()
 
+    def myquery(self, string):
+        # write a command to the board, wait the correct timeout, and read the response
+        self.write(string)
+
+        # the read and calibration commands require a longer timeout
+        if((string.upper().startswith("R")) or
+           (string.upper().startswith("CAL"))):
+            time.sleep(self.long_timeout)
+        elif((string.upper().startswith("SLEEP"))):
+            return "sleep mode"
+        else:
+            time.sleep(self.short_timeout)
+
+        return self.yank()
+
+
     def close(self):
         self.file_read.close()
         self.file_write.close()
@@ -122,7 +138,7 @@ def main():
         # if not a special keyword, pass commands straight to board
         else:
             try:
-                print(device.query(input))
+                print(device.myquery(input))
             except IOError:
                 print("Query failed")
 
