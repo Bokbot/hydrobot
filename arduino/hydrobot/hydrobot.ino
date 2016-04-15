@@ -710,6 +710,16 @@ void slavesRespond(){
     case 21:
       returnValue = pumpOnCount;
     break;
+
+    case 22:
+      returnValue = pumpOnCount;
+      //Wire.write(dataString);
+      Wire.write('r');
+      Wire.write('r');
+      Wire.write('r');
+      Wire.write('r');
+      Wire.endTransmission();
+    break;
  
   }
  
