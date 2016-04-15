@@ -422,6 +422,8 @@ void printOutput () {
     /*dataString += ",";*/
   /*dataString += String(t);*/
   // Serial.print("DHT1122-DHTstatus ");
+  dataString = "Master ";
+  dataString += String(LastMasterCommand);
   dataString = "DHT1122-DHTstatus ";
   // Serial.println(dht.getStatusString());
   dataString += String(int((dht.getStatusString())));
@@ -507,10 +509,10 @@ void printOutput () {
   dataString += "3478-ENDTRANSMISSION";
   dataString += "\r\n";
   Serial.print(dataString);
-  Wire.beginTransmission(44);
+  //Wire.beginTransmission(44);
   //Wire.write(dataString);
-  Wire.write('r');
-  Wire.endTransmission();
+  //Wire.write('r');
+  //Wire.endTransmission();
   //display.print(dataString);
   if(countZero == 0){
    /*backgroundColor = ST7735_BLACK;*/
@@ -714,12 +716,6 @@ void slavesRespond(){
 
     case 22:
       returnValue = pumpOnCount;
-      //Wire.write(dataString);
-      Wire.write('r');
-      Wire.write('r');
-      Wire.write('r');
-      Wire.write('r');
-      Wire.endTransmission();
     break;
  
   }
