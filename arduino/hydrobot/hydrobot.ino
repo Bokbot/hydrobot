@@ -630,7 +630,8 @@ void slavesRespond(){
     break;
  
     case 2:   // Our test function
-      returnValue = sumFunction(a,b,c,d,e);  
+     // returnValue = sumFunction(a,b,c,d,e);  
+     returnValue = 366;
     break;
 
     case 3:  // return watchdog value
