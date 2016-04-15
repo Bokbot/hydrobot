@@ -422,11 +422,12 @@ void printOutput () {
     /*dataString += ",";*/
   /*dataString += String(t);*/
   // Serial.print("DHT1122-DHTstatus ");
-  dataString = "Master ";
-  dataString += String(LastMasterCommand);
   dataString = "DHT1122-DHTstatus ";
   // Serial.println(dht.getStatusString());
   dataString += String(int((dht.getStatusString())));
+  dataString += "\r\n";
+  dataString = "Master ";
+  dataString += String(LastMasterCommand);
   dataString += "\r\n";
   // Moisture
   //Serial.print("DHT1122-Moisture1 ");
