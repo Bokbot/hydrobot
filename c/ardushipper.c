@@ -31,7 +31,8 @@ int main(int argc, char** argv) {
   }
 
 
-   // initialize command to get moisture value 1
+    unsigned int cmd[16];
+    // initialize command to get moisture value 1
     cmd[0] = 4;
     // these other bytes are irrelevant at the moment
     cmd[1] = 1;
@@ -60,7 +61,6 @@ int main(int argc, char** argv) {
     printf("Moisture Value 1 %d\n", resultant);
       }
       usleep(10000);
-    }
 
     // Now wait else you could crash the arduino by sending requests too fast
     usleep(10000);
