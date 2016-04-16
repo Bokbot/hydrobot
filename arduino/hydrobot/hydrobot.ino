@@ -716,7 +716,7 @@ void slavesRespond(){
     break;
 
     case 22:
-      returnValue = pumpOffCount;
+      returnValue = pumpOnCount;
     break;
  
   }
@@ -849,6 +849,7 @@ void setup() {
   setTime(0);
   // temperature sensor setup
   dht.setup(DHT_PIN); // data pin
+  delay(250);
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
 
