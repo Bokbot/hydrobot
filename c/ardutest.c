@@ -15,21 +15,28 @@
 static const char *devName = "/dev/i2c-1";
 
 int retrieveValue(int call, int *pointfile) {
-
-  unsigned int cmd[16];
-  // initialize command to get moisture value 1
-  cmd[0] = call;
+  // initialize command to get test
   // these other bytes are irrelevant at the moment
-  cmd[1] = 1;
-  cmd[2] = 2;
-  cmd[3] = 3;
-  cmd[4] = 4;
-  cmd[5] = 5;
-  cmd[6] = 6;
-  cmd[7] = 7;
-  cmd[8] = 8;
-  cmd[9] = 9;
-  cmd[10] = 10;
+  unsigned int cmd[16];
+
+  a = 105;
+  b = 2350;
+  c = 4587;
+  d = 12587;
+  e = 12;
+
+  cmd[0] = call;
+  cmd[1] = a >>  8;
+  cmd[2] = a & 255;
+  cmd[3] = b >>  8;
+  cmd[4] = b & 255;
+  cmd[5] = c >>  8;
+  cmd[6] = c & 255;
+  cmd[7] = d >>  8;
+  cmd[8] = d & 255;
+  cmd[9] = e >>  8;
+  cmd[10]= e & 255;
+
 
   if (write(*pointfile, cmd, 11) == 11) {
     // As we are not talking to direct hardware but a microcontroller we
@@ -53,6 +60,7 @@ int retrieveValue(int call, int *pointfile) {
 int main(int argc, char** argv) {
 
   int file;
+  int a, b, c, d, e; // arguments
 
   if ((file = open(devName, O_RDWR)) < 0) {
     fprintf(stderr, "I2C: Failed to access %d\n", devName);
