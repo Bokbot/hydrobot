@@ -14,6 +14,42 @@
 // The I2C bus: This is for V2 pi's. For V1 Model B you need i2c-0
 static const char *devName = "/dev/i2c-1";
 
+int retrieveValue(int call, int *pointfile) {
+
+  unsigned int cmd[16];
+  // initialize command to get moisture value 1
+  cmd[0] = call;
+  // these other bytes are irrelevant at the moment
+  cmd[1] = 1;
+  cmd[2] = 2;
+  cmd[3] = 3;
+  cmd[4] = 4;
+  cmd[5] = 5;
+  cmd[6] = 6;
+  cmd[7] = 7;
+  cmd[8] = 8;
+  cmd[9] = 9;
+  cmd[10] = 10;
+
+  if (write(*pointfile, cmd, 11) == 11) {
+    // As we are not talking to direct hardware but a microcontroller we
+    // need to wait a short while so that it can respond.
+    //
+    // 1ms seems to be enough but it depends on what workload it has
+    usleep(10000);
+
+    char buf[3];
+    if (read(*pointfile, buf, 2) == 2) {
+  int resultant = buf[0] << 8 | buf[1];
+
+  return resultant;
+    }
+    else{
+      return -1;
+    }
+  }
+}
+
 int main(int argc, char** argv) {
 
   int file;
@@ -31,40 +67,7 @@ int main(int argc, char** argv) {
   }
 
 
-    unsigned int cmd[16];
-    // initialize command to get moisture value 1
-    cmd[0] = 4;
-    // these other bytes are irrelevant at the moment
-    cmd[1] = 1;
-    cmd[2] = 2;
-    cmd[3] = 3;
-    cmd[4] = 4;
-    cmd[5] = 5;
-    cmd[6] = 6;
-    cmd[7] = 7;
-    cmd[8] = 8;
-    cmd[9] = 9;
-    cmd[10] = 10;
-
-    if (write(file, cmd, 11) == 11) {
-
-      // As we are not talking to direct hardware but a microcontroller we
-      // need to wait a short while so that it can respond.
-      //
-      // 1ms seems to be enough but it depends on what workload it has
-      usleep(10000);
-
-      char buf[3];
-      if (read(file, buf, 2) == 2) {
-    int resultant = buf[0] << 8 | buf[1];
-
-    printf("Moisture Value 1 %d\n", resultant);
-      }
-      usleep(10000);
-
-    // Now wait else you could crash the arduino by sending requests too fast
-    usleep(10000);
-  }
+  printf("Moisture Value 1 %d\n", retrieveValue(4, &file));
 
   close(file);
   return (EXIT_SUCCESS);
