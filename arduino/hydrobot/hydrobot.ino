@@ -801,7 +801,7 @@ float readpH() {
      break;                         //exits the switch case.
     }
     //while(Wire.available()){          //are there bytes to receive.
-    while((0){          //are there bytes to receive.
+    while(0){          //are there bytes to receive.
      //in_char = Wire.read();           //receive a byte.
      ph_data[i]= in_char;             //load this byte into our array.
      i+=1;                            //incur the counter for the array element.
