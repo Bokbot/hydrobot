@@ -716,7 +716,7 @@ void slavesRespond(){
     break;
 
     case 22:
-      returnValue = pumpOnCount;
+      returnValue = pumpOffCount;
     break;
  
   }

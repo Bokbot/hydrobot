@@ -66,14 +66,27 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  printf("Monitaur-MoistureValue1 %d\n", retrieveValue(4, &file));
-  printf("DHT1122-Celsius %d\n", retrieveValue(8, &file));
-  printf("DHT1122-Fahrenheit %d\n", retrieveValue(9, &file));
-  printf("DHT1122-Humidity %d\n", retrieveValue(10, &file));
-  printf("Monitaur-pumpAveON %d\n", retrieveValue(16, &file));
-  printf("Monitaur-pumpAveOff %d\n", retrieveValue(17, &file));
-  printf("Monitaur-dryLimit %d\n", retrieveValue(18, &file));
-  printf("Monitaur-wetLimit %d\n", retrieveValue(19, &file));
+
+  printf("Watchdog %d\n", retrieveValue(3, &file));
+  printf("Moisture Value 1 %d\n", retrieveValue(4, &file));
+  printf("Moisture Value 2 %d\n", retrieveValue(5, &file));
+  printf("Moisture Value 3 %d\n", retrieveValue(6, &file));
+  printf("ok2 %d\n", retrieveValue(7, &file));
+  printf("celsius %d\n", retrieveValue(8, &file));
+  printf("farenheit %d\n", retrieveValue(9, &file));
+  printf("humidity %d\n", retrieveValue(10, &file));
+  printf("ok %d\n", retrieveValue(11, &file));
+  printf("pumpOn %d\n", retrieveValue(12, &file));
+  printf("pumpOff %d\n", retrieveValue(13, &file));
+  printf("sensorHighValue %d\n", retrieveValue(14, &file));
+  printf("sensorLowValue %d\n", retrieveValue(15, &file));
+  printf("AveON %d\n", retrieveValue(16, &file));
+  printf("AveOff %d\n", retrieveValue(17, &file));
+  printf("dryLimit %d\n", retrieveValue(18, &file));
+  printf("wetLimit %d\n", retrieveValue(19, &file));
+  printf("OnCountMin %d\n", retrieveValue(20, &file));
+  printf("pumpOnCount %d\n", retrieveValue(21, &file));
+  printf("pumpOffCount %d\n", retrieveValue(22, &file));
 
   close(file);
   return (EXIT_SUCCESS);
