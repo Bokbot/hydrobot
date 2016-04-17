@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  if( retrieveValue(4, &file) == 366 ){
+  if( retrieveValue(2, &file) == 366 ){
     printf("ok", 0 );
   }
   else {
