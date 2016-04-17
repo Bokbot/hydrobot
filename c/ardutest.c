@@ -76,10 +76,10 @@ int main(int argc, char** argv) {
   }
 
   if( retrieveValue(2, &file) == 366 ){
-    printf("ok", 0 );
+    printf("ok\n", 0 );
   }
   else {
-    printf("bad", 0 );
+    printf("bad\n", 0 );
   }
 
   close(file);
