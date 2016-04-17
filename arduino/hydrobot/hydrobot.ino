@@ -161,7 +161,7 @@ unsigned long pumpOnTimes[5];
 unsigned long pumpOffTimes[5];
 
 float humidity    = 0;
-float temperature = 0;
+float temperature = -40;
 
 void printDigits(int digits){ // utility function for digital clock display: prints preceding colon and leading 0
   Serial.print(":");
@@ -625,7 +625,7 @@ void slavesRespond(){
  
   switch(LastMasterCommand){
     case 0:   // No new command was received
-       returnValue = 1; // i.e. error code #1
+      returnValue = 1; // i.e. error code #1
     break;
     
     case 1:   // Some function
@@ -633,7 +633,8 @@ void slavesRespond(){
     break;
  
     case 2:   // Our test function
-      returnValue = sumFunction(a,b,c,d,e);
+      //returnValue = sumFunction(a,b,c,d,e);
+      returnValue = a;
     break;
 
     case 3:  // return watchdog value
