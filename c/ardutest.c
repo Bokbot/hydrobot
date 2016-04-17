@@ -19,6 +19,8 @@ int retrieveValue(int call, int *pointfile) {
   // these other bytes are irrelevant at the moment
   unsigned int cmd[16];
 
+  int a, b, c, d, e; // arguments
+
   a = 105;
   b = 2350;
   c = 4587;
@@ -60,7 +62,6 @@ int retrieveValue(int call, int *pointfile) {
 int main(int argc, char** argv) {
 
   int file;
-  int a, b, c, d, e; // arguments
 
   if ((file = open(devName, O_RDWR)) < 0) {
     fprintf(stderr, "I2C: Failed to access %d\n", devName);
