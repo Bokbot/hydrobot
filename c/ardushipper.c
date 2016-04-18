@@ -71,7 +71,8 @@ int main(int argc, char** argv) {
   printf("DHT1122-Celsius %f\n", myfloat);
   myfloat = (( retrieveValue(9, &file)) * 0.1 );
   printf("DHT1122-Fahrenheit %f\n", myfloat);
-  printf("DHT1122-Humidity %d\n", retrieveValue(10, &file));
+  myfloat = (( retrieveValue(10, &file)) * 0.1 );
+  printf("DHT1122-Humidity %f\n", myfloat);
   printf("Monitaur-pumpAveON %d\n", retrieveValue(16, &file));
   printf("Monitaur-pumpAveOff %d\n", retrieveValue(17, &file));
   printf("Monitaur-dryLimit %d\n", retrieveValue(18, &file));

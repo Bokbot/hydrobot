@@ -666,7 +666,7 @@ void slavesRespond(){
     break;
 
     case 10:
-      returnValue = int(humidity);
+      returnValue = int(humidity * 10 );
     break;
 
     case 11:
