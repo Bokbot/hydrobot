@@ -725,7 +725,7 @@ void slavesRespond(){
   buffer[0] = returnValue >> 8;
   buffer[1] = returnValue & 255;
   Wire.write(buffer, 2);       // return response to last command
-  // LastMasterCommand = 0;       // null last Master's command
+  LastMasterCommand = 0;       // null last Master's command
 }
 
 int SoilMoisture(){
