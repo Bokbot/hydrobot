@@ -116,6 +116,7 @@ const unsigned long lcdInterval = 5000; // lcd refresh interval in ms: 5,000 ms 
 
 bool ok;
 bool ok2;
+bool ok3;
 bool flop;
 bool pumpOn;
 bool PIDpumpOn;
@@ -145,6 +146,7 @@ unsigned int pumpOnCount = 0;
 
 unsigned int watchdog;
 unsigned int watchdog2;
+unsigned int watchdog3;
 unsigned int fiveOn;
 unsigned int fiveOff;
 
@@ -154,6 +156,7 @@ unsigned long timeOff;
 unsigned long secondTime;
 unsigned long throttleTime;
 unsigned long serialthrottleTime;
+unsigned long i2cresetthrottleTime;
 unsigned long divideTime;
 unsigned long multiplyTime;
 
@@ -968,6 +971,7 @@ void loop() {
 
   watchdog++;
   watchdog2++;
+  watchdog3++;
   // read the moisture value:
   moistureValue1 = 1023 - SoilMoisture(); // assign the result of SoilMoisture() to the global variable 'moisture'
   humidity = dht.getHumidity();
@@ -983,6 +987,18 @@ void loop() {
     ok2 = 0;
     serialthrottleTime = (millis() + 5000); // 5,000 ms = 5 seconds
     watchdog2 = 0;
+  }
+  ok3 = serialcheckThrottle( i2cresethrottleTime, watchdog3 );
+  if(ok3 == 1) {
+    Wire.endTransmission();          //end the I2C data transmission.
+    // Start the I2C Bus as Slave  
+    Wire.begin(SlaveDeviceId);      // join i2c bus with Slave ID
+    // Attach a function to trigger when something is received.
+    Wire.onReceive(receiveDataPacket); // register talk event
+    // Attach a function to trigger when something is requested.
+    Wire.onRequest(slavesRespond);  // register callback event
+    watchdog3 = 0;
+    i2cresetthrottleTime = (millis() + 3600000); // 3600,000 ms = 3600 seconds
   }
 
   if(ok == 1) {
