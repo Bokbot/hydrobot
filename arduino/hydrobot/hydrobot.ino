@@ -120,13 +120,13 @@ bool flop;
 bool pumpOn;
 bool PIDpumpOn;
 
-int dryLimit = 555;        // this is the value of dryness we don't want to go below
-int wetLimit = 900;        // this is the vale of wetness we don't want to go above
-int sensorValue1 = 0;        // value read from the pot
-int sensorValue2 = 0;        // value read from the pot
-int sensorValue3 = 0;        // value read from the pot
-int sensorValue4 = 0;        // value read from the pot
-int sensorValue5 = 0;        // value read from the pot
+int dryLimit = 655;        // this is the value of wetness we don't want to go below
+int wetLimit = 844;        // this is the vale of wetness we don't want to go above
+//int sensorValue1 = 0;        // value read from the pot
+//int sensorValue2 = 0;        // value read from the pot
+//int sensorValue3 = 0;        // value read from the pot
+//int sensorValue4 = 0;        // value read from the pot
+//int sensorValue5 = 0;        // value read from the pot
 int moistureValue1 = 0;        // value read from the pot
 int moistureValue2 = 0;        // value read from the pot
 int moistureValue3 = 0;        // value read from the pot
@@ -434,7 +434,6 @@ void printOutput () {
   dataString += "monit-pH ";
   dataString += printFloat(ph_float, 3);
   dataString += "DHT1122-Moisture1 ";
-  //Serial.println(sensorValue1);
   dataString += String(int((moistureValue1)));
   dataString += "\r\n";
   //Serial.print("DHT1122-Moisture2 ");
@@ -535,7 +534,6 @@ void printOutput () {
   /*tft.setTextWrap(true);*/
   /*tft.print("sensor= ");*/
   /*tft.setTextColor(ST7735_WHITE);*/
-  /*tft.println(sensorValue1);*/
   /*tft.setTextColor(ST7735_RED);*/
   /*tft.print("OnTime= ");*/
   /*tft.setTextColor(ST7735_WHITE);*/
@@ -971,11 +969,10 @@ void loop() {
   watchdog++;
   watchdog2++;
   // read the moisture value:
-  sensorValue1 = SoilMoisture(); // assign the result of SoilMoisture() to the global variable 'moisture'
-  moistureValue1 = 1023 - sensorValue1;
+  moistureValue1 = 1023 - SoilMoisture(); // assign the result of SoilMoisture() to the global variable 'moisture'
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
-  //directOutput(sensorValue1);
+  //directOutput(moistureValue1);
 
   ok = checkThrottle( throttleTime, watchdog );
   ok2 = serialcheckThrottle( serialthrottleTime, watchdog2 );
