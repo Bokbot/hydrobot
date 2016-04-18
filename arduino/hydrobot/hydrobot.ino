@@ -988,7 +988,7 @@ void loop() {
     serialthrottleTime = (millis() + 5000); // 5,000 ms = 5 seconds
     watchdog2 = 0;
   }
-  ok3 = serialcheckThrottle( i2cresethrottleTime, watchdog3 );
+  ok3 = serialcheckThrottle( i2cresetthrottleTime, watchdog3 );
   if(ok3 == 1) {
     Wire.endTransmission();          //end the I2C data transmission.
     // Start the I2C Bus as Slave  
