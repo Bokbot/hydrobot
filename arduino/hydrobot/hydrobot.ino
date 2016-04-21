@@ -116,17 +116,18 @@ const unsigned long lcdInterval = 5000; // lcd refresh interval in ms: 5,000 ms 
 
 bool ok;
 bool ok2;
+bool ok3;
 bool flop;
 bool pumpOn;
 bool PIDpumpOn;
 
-int dryLimit = 555;        // this is the value of dryness we don't want to go below
-int wetLimit = 900;        // this is the vale of wetness we don't want to go above
-int sensorValue1 = 0;        // value read from the pot
-int sensorValue2 = 0;        // value read from the pot
-int sensorValue3 = 0;        // value read from the pot
-int sensorValue4 = 0;        // value read from the pot
-int sensorValue5 = 0;        // value read from the pot
+int dryLimit = 655;        // this is the value of wetness we don't want to go below
+int wetLimit = 844;        // this is the vale of wetness we don't want to go above
+//int sensorValue1 = 0;        // value read from the pot
+//int sensorValue2 = 0;        // value read from the pot
+//int sensorValue3 = 0;        // value read from the pot
+//int sensorValue4 = 0;        // value read from the pot
+//int sensorValue5 = 0;        // value read from the pot
 int moistureValue1 = 0;        // value read from the pot
 int moistureValue2 = 0;        // value read from the pot
 int moistureValue3 = 0;        // value read from the pot
@@ -145,6 +146,7 @@ unsigned int pumpOnCount = 0;
 
 unsigned int watchdog;
 unsigned int watchdog2;
+unsigned int watchdog3;
 unsigned int fiveOn;
 unsigned int fiveOff;
 
@@ -154,6 +156,7 @@ unsigned long timeOff;
 unsigned long secondTime;
 unsigned long throttleTime;
 unsigned long serialthrottleTime;
+unsigned long i2cresetthrottleTime;
 unsigned long divideTime;
 unsigned long multiplyTime;
 
@@ -161,7 +164,7 @@ unsigned long pumpOnTimes[5];
 unsigned long pumpOffTimes[5];
 
 float humidity    = 0;
-float temperature = 0;
+float temperature = -40;
 
 void printDigits(int digits){ // utility function for digital clock display: prints preceding colon and leading 0
   Serial.print(":");
@@ -426,12 +429,14 @@ void printOutput () {
   // Serial.println(dht.getStatusString());
   dataString += String(int((dht.getStatusString())));
   dataString += "\r\n";
+  dataString = "Master ";
+  dataString += String(LastMasterCommand);
+  dataString += "\r\n";
   // Moisture
   //Serial.print("DHT1122-Moisture1 ");
   dataString += "monit-pH ";
   dataString += printFloat(ph_float, 3);
   dataString += "DHT1122-Moisture1 ";
-  //Serial.println(sensorValue1);
   dataString += String(int((moistureValue1)));
   dataString += "\r\n";
   //Serial.print("DHT1122-Moisture2 ");
@@ -507,10 +512,10 @@ void printOutput () {
   dataString += "3478-ENDTRANSMISSION";
   dataString += "\r\n";
   Serial.print(dataString);
-  Wire.beginTransmission(44);
+  //Wire.beginTransmission(44);
   //Wire.write(dataString);
-  Wire.write('r');
-  Wire.endTransmission();
+  //Wire.write('r');
+  //Wire.endTransmission();
   //display.print(dataString);
   if(countZero == 0){
    /*backgroundColor = ST7735_BLACK;*/
@@ -532,7 +537,6 @@ void printOutput () {
   /*tft.setTextWrap(true);*/
   /*tft.print("sensor= ");*/
   /*tft.setTextColor(ST7735_WHITE);*/
-  /*tft.println(sensorValue1);*/
   /*tft.setTextColor(ST7735_RED);*/
   /*tft.print("OnTime= ");*/
   /*tft.setTextColor(ST7735_WHITE);*/
@@ -622,7 +626,7 @@ void slavesRespond(){
  
   switch(LastMasterCommand){
     case 0:   // No new command was received
-       returnValue = 1; // i.e. error code #1
+      returnValue = 1; // i.e. error code #1
     break;
     
     case 1:   // Some function
@@ -630,7 +634,8 @@ void slavesRespond(){
     break;
  
     case 2:   // Our test function
-      returnValue = sumFunction(a,b,c,d,e);  
+      //returnValue = sumFunction(a,b,c,d,e);
+      returnValue = a;
     break;
 
     case 3:  // return watchdog value
@@ -664,7 +669,7 @@ void slavesRespond(){
     break;
 
     case 10:
-      returnValue = int(humidity);
+      returnValue = int(humidity * 10 );
     break;
 
     case 11:
@@ -708,6 +713,10 @@ void slavesRespond(){
     break;
 
     case 21:
+      returnValue = pumpOnCount;
+    break;
+
+    case 22:
       returnValue = pumpOnCount;
     break;
  
@@ -769,12 +778,12 @@ char *ftoa(char *a, double f, int precision){
 float readpH() {
     float internal_ph_float;                  //float var used to hold the float value of the pH. 
     time_=1800;
-    Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
-    Wire.write('r');        //transmit the command that was sent through the serial port.
-    Wire.endTransmission();          //end the I2C data transmission.
+    //Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
+    //Wire.write('r');        //transmit the command that was sent through the serial port.
+    //Wire.endTransmission();          //end the I2C data transmission.
     delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
-    Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
-    code=Wire.read();               //the first byte is the response code, we read this separately.
+    //Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
+    //code=Wire.read();               //the first byte is the response code, we read this separately.
     switch (code){                  //switch case based on what the response code is.
       case 1:                       //decimal 1.
     //    Serial.println("Success");  //means the command was successful.
@@ -792,13 +801,14 @@ float readpH() {
       // Serial.println("No Data");   //means there is no further data to send.
      break;                         //exits the switch case.
     }
-    while(Wire.available()){          //are there bytes to receive.
-     in_char = Wire.read();           //receive a byte.
+    //while(Wire.available()){          //are there bytes to receive.
+    while(0){          //are there bytes to receive.
+     //in_char = Wire.read();           //receive a byte.
      ph_data[i]= in_char;             //load this byte into our array.
      i+=1;                            //incur the counter for the array element.
       if(in_char==0){                 //if we see that we have been sent a null command.
           i=0;                        //reset the counter i to 0.
-          Wire.endTransmission();     //end the I2C data transmission.
+          //Wire.endTransmission();     //end the I2C data transmission.
           break;                      //exit the while loop.
       }
     }
@@ -840,6 +850,7 @@ void setup() {
   setTime(0);
   // temperature sensor setup
   dht.setup(DHT_PIN); // data pin
+  delay(250);
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
 
@@ -960,12 +971,12 @@ void loop() {
 
   watchdog++;
   watchdog2++;
+  watchdog3++;
   // read the moisture value:
-  sensorValue1 = SoilMoisture(); // assign the result of SoilMoisture() to the global variable 'moisture'
-  moistureValue1 = 1023 - sensorValue1;
+  moistureValue1 = 1023 - SoilMoisture(); // assign the result of SoilMoisture() to the global variable 'moisture'
   humidity = dht.getHumidity();
   temperature = dht.getTemperature();
-  //directOutput(sensorValue1);
+  //directOutput(moistureValue1);
 
   ok = checkThrottle( throttleTime, watchdog );
   ok2 = serialcheckThrottle( serialthrottleTime, watchdog2 );
@@ -976,6 +987,18 @@ void loop() {
     ok2 = 0;
     serialthrottleTime = (millis() + 5000); // 5,000 ms = 5 seconds
     watchdog2 = 0;
+  }
+  ok3 = serialcheckThrottle( i2cresetthrottleTime, watchdog3 );
+  if(ok3 == 1) {
+    Wire.endTransmission();          //end the I2C data transmission.
+    // Start the I2C Bus as Slave  
+    Wire.begin(SlaveDeviceId);      // join i2c bus with Slave ID
+    // Attach a function to trigger when something is received.
+    Wire.onReceive(receiveDataPacket); // register talk event
+    // Attach a function to trigger when something is requested.
+    Wire.onRequest(slavesRespond);  // register callback event
+    watchdog3 = 0;
+    i2cresetthrottleTime = (millis() + 3600000); // 3600,000 ms = 3600 seconds
   }
 
   if(ok == 1) {
