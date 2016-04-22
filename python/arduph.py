@@ -1,4 +1,4 @@
-#!/usr/bin/python 
+#!/usr/bin/env python 
 
 import io # used to create file streams
 import fcntl # used to access I2C parameters like addresses
