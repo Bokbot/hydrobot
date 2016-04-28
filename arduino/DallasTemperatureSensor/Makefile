@@ -1,14 +1,4 @@
 # Arduino Make file. Refer to https://github.com/sudar/Arduino-Makefile
-BOARD_TAG   = nano
-BOARD_SUB   = atmega328
-ARDUINO_DIR = /usr/share/arduino
-ARDMK_DIR = /usr/share/arduino
-AVR_TOOLS_DIR = /usr
-ARDUINO_CORE_PATH = /usr/share/arduino/hardware/arduino/avr/cores/arduino
-BOARDS_TXT = /usr/share/arduino/hardware/arduino/avr/boards.txt
-ARDUINO_VAR_PATH = /usr/share/arduino/hardware/arduino/avr/variants
-BOOTLOADER_PARENT = /usr/share/arduino/hardware/arduino/avr/bootloaders
-include /usr/share/arduino/Arduino.mk
 
 #include ../../Arduino.mk
 # ARDUINO_LIBS = Average Arduino-PID-Library Adafruit_GFX_Library Adafruit_ST7735_Library SPI Wire Time
@@ -19,7 +9,9 @@ MONITOR_BAUDRATE  = 115200
 #BOARD_TAG    = mega
 #BOARD_SUB    = atmega2560
 #ARDUINO_PORT = /dev/ttyACM0
-#ARCHITECTURE  = avr
+BOARD_TAG   = nano
+BOARD_SUB   = atmega328
+include /usr/share/arduino/Arduino.mk
 #BOARD_TAG    = nano328
 #ARDUINO_DIR   = /usr/share/arduino
 #ARDMK_DIR     = /usr/share/arduino
