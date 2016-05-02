@@ -42,8 +42,24 @@
 #include <MySensor.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
+#include "DHT.h"
+#include <Wire.h>
+
+const int DHT_PIN = 2; // digital pin 2
+DHT dht;
 
 #define COMPARE_TEMP 1 // Send temperature only if changed? 1 = Yes 0 = No
+#define COMPARE_HUM 1 // Send humidity only if changed? 1 = Yes 0 = No
+#define COMPARE_PH 1 // Send pH only if changed? 1 = Yes 0 = No
+#define COMPARE_EC 1 // Send EC only if changed? 1 = Yes 0 = No
+
+#define HUM_ID 17
+#define PH_ID 18
+#define EC_ID 19
+#define AIRTMP_ID 20
+#define ezophaddress 99               //default I2C ID number for EZO pH Circuit.
+#define ezoecddress 98               //default I2C ID number for EZO EC Circuit.
+
 
 #define ONE_WIRE_BUS 3 // Pin where dallase sensor is connected 
 #define MAX_ATTACHED_DS18B20 16
@@ -51,13 +67,65 @@ unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
 OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 DallasTemperature sensors(&oneWire); // Pass the oneWire reference to Dallas Temperature. 
 float lastTemperature[MAX_ATTACHED_DS18B20];
+float lastHumidity = 0;
+float lastPH = 0;
+float lastEC = 0;
 int numSensors=0;
+int time_=1800;                   //used to change the delay needed depending on the command sent to the EZO Class pH Circuit. 
 boolean receivedConfig = false;
 boolean metric = true; 
 // Initialize temperature message
-MyMessage msg(0,V_TEMP);
+MyMessage tempmsg(0,V_TEMP);
+MyMessage humiditymsg(HUM_ID,V_HUM);
+MyMessage phmsg(PH_ID,V_PH);
+MyMessage ecmsg(EC_ID,V_EC);
+
+float readpH() {
+    float internal_ph_float;                  //float var used to hold the float value of the pH. 
+    time_=1800;
+    //Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
+    //Wire.write('r');        //transmit the command that was sent through the serial port.
+    //Wire.endTransmission();          //end the I2C data transmission.
+    delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
+    //Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
+    //code=Wire.read();               //the first byte is the response code, we read this separately.
+    switch (code){                  //switch case based on what the response code is.
+      case 1:                       //decimal 1.
+    //    Serial.println("Success");  //means the command was successful.
+      break;                        //exits the switch case.
+
+     case 2:                        //decimal 2.
+     //  Serial.println("Failed");    //means the command has failed.
+     break;                         //exits the switch case.
+
+     case 254:                      //decimal 254.
+      // Serial.println("Pending");   //means the command has not yet been finished calculating.
+     break;                         //exits the switch case.
+
+     case 255:                      //decimal 255.
+      // Serial.println("No Data");   //means there is no further data to send.
+     break;                         //exits the switch case.
+    }
+    //while(Wire.available()){          //are there bytes to receive.
+    while(0){          //are there bytes to receive.
+     //in_char = Wire.read();           //receive a byte.
+     ph_data[i]= in_char;             //load this byte into our array.
+     i+=1;                            //incur the counter for the array element.
+      if(in_char==0){                 //if we see that we have been sent a null command.
+          i=0;                        //reset the counter i to 0.
+          //Wire.endTransmission();     //end the I2C data transmission.
+          break;                      //exit the while loop.
+      }
+    }
+    //Serial.println(ph_data);          //print the data.
+    internal_ph_float=atof(ph_data);
+    return internal_ph_float;
+}
 
 void setup() {
+  // DHT temperature sensor setup
+  dht.setup(DHT_PIN); // data pin
+  delay(250);
   // DallasTemperature setup
   // Startup up the OneWire library
   sensors.begin();
@@ -80,6 +148,14 @@ void presentation()
   for (int i=0; i<numSensors && i<MAX_ATTACHED_DS18B20; i++) {   
      present(i, S_TEMP);
   }
+  // Humidity
+  present(HUM_ID, S_HUM);
+  // pH
+  present(PH_ID, S_PH);
+  // EC
+  present(EC_ID, S_EC);
+  // AIRTMP
+  present(AIRTMP_ID, S_TEMP);
 }
 
 void loop() 
@@ -106,9 +182,47 @@ void loop()
     #endif
  
       // Send in the new temperature
-      send(msg.setSensor(i).set(temperature,1));
+      send(tempmsg.setSensor(i).set(temperature,1));
       // Save new temperatures for next compare
       lastTemperature[i]=temperature;
+    }
+  }
+  float airtemp = dht.getTemperature();
+    // Only send data if airtemp has changed and no error
+    #if COMPARE_TEMP == 1
+    if (lastAirtemp != airtemp ) {
+    #endif
+ 
+      // Send in the new airtemp
+      send(airtempmsg.setSensor(AIRTMP_ID).set(airtemp,1));
+      // Save new airtemp for next compare
+      lastAirtemp=airtemp;
+    }
+  }
+  float humidity = dht.getHumidity();
+    // Only send data if humidity has changed and no error
+    #if COMPARE_HUM == 1
+    if (lastHumidity != humidity && humidity != -127.00 && humidity != 85.00) {
+    #else
+    if (humidity != -127.00 && humidity != 85.00) {
+    #endif
+ 
+      // Send in the new humidity
+      send(humiditymsg.setSensor(HUM_ID).set(humidity,1));
+      // Save new humidity for next compare
+      lastHumidity=humidity;
+    }
+  }
+  float ph_float = readpH();                  //float var used to hold the float value of the pH. 
+    // Only send data if ph_float has changed and no error
+    #if COMPARE_PH == 1
+    if (lastPH != ph_float ) {
+    #endif
+ 
+      // Send in the new ph_float
+      send(phmsg.setSensor(HUM_ID).set(ph_float,1));
+      // Save new ph_float for next compare
+      lastPH=ph_float;
     }
   }
   sleep(SLEEP_TIME);
