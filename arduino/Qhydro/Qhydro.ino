@@ -70,7 +70,7 @@ byte i=0;                        //counter used for ph_data array.
 int time_=1800;                   //used to change the delay needed depending on the command sent to the EZO Class pH Circuit. 
 float ph_float = 0;                  //float var used to hold the float value of the pH. 
 
-#define ONE_WIRE_BUS 3 // Pin where dallase sensor is connected 
+#define ONE_WIRE_BUS 3 // Pin where dallas sensor is connected 
 #define MAX_ATTACHED_DS18B20 16
 unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
 OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -104,24 +104,24 @@ float readpH() {
     code=Wire.read();               //the first byte is the response code, we read this separately.
     switch (code){                  //switch case based on what the response code is.
       case 1:                       //decimal 1.
-    //    Serial.println("Success");  //means the command was successful.
+        //Serial.println("Success");  //means the command was successful.
       break;                        //exits the switch case.
 
      case 2:                        //decimal 2.
-     //  Serial.println("Failed");    //means the command has failed.
+       //Serial.println("Failed");    //means the command has failed.
      break;                         //exits the switch case.
 
      case 254:                      //decimal 254.
-      // Serial.println("Pending");   //means the command has not yet been finished calculating.
+      //Serial.println("Pending");   //means the command has not yet been finished calculating.
      break;                         //exits the switch case.
 
      case 255:                      //decimal 255.
-      // Serial.println("No Data");   //means there is no further data to send.
+      //Serial.println("No Data");   //means there is no further data to send.
      break;                         //exits the switch case.
     }
-    //while(Wire.available()){          //are there bytes to receive.
-    while(0){          //are there bytes to receive.
-     //in_char = Wire.read();           //receive a byte.
+    while(Wire.available()){          //are there bytes to receive.
+    //while(0){          //are there bytes to receive.
+     in_char = Wire.read();           //receive a byte.
      ph_data[i]= in_char;             //load this byte into our array.
      i+=1;                            //incur the counter for the array element.
       if(in_char==0){                 //if we see that we have been sent a null command.
@@ -193,6 +193,7 @@ void loop()
  
     // Fetch and round temperature to one decimal
     float temperature = static_cast<float>(static_cast<int>((getConfig().isMetric?sensors.getTempCByIndex(i):sensors.getTempFByIndex(i)) * 10.)) / 10.;
+    send(tempmsg.setSensor(i).set(temperature,1));
     /*Serial.print(i);*/
     /*Serial.print("-DS18B20-temp ");*/
     /*Serial.println(temperature);*/
@@ -202,43 +203,45 @@ void loop()
       if (temperature != -127.00 && temperature != 85.00) {
  
       // Send in the new temperature
-      send(tempmsg.setSensor(i).set(temperature,1));
+   //   send(tempmsg.setSensor(i).set(temperature,1));
       // Save new temperatures for next compare
       lastTemperature[i]=temperature;
     }
   }
+  }
   float airtemp = dht.getTemperature();
+      send(airtempmsg.setSensor(AIRTMP_ID).set(airtemp,1));
     /*Serial.print("DHT1122-airtemp ");*/
     /*Serial.println(airtemp);*/
     // Only send data if airtemp has changed and no error
     if (lastAirtemp != airtemp ) {
  
       // Send in the new airtemp
-      send(airtempmsg.setSensor(AIRTMP_ID).set(airtemp,1));
+      //send(airtempmsg.setSensor(AIRTMP_ID).set(airtemp,1));
       // Save new airtemp for next compare
       lastAirtemp=airtemp;
     }
   float humidity = dht.getHumidity();
-    /*Serial.print("DHT1122-airhum ");*/
-    /*Serial.println(humidity);*/
+  send(humiditymsg.setSensor(HUM_ID).set(humidity,1));
+  //  Serial.print("DHT1122-airhum ");
+  //  Serial.println(humidity);
     // Only send data if humidity has changed and no error
     if (lastHumidity != humidity) {
  
       // Send in the new humidity
-      send(humiditymsg.setSensor(HUM_ID).set(humidity,1));
+      //send(humiditymsg.setSensor(HUM_ID).set(humidity,1));
       // Save new humidity for next compare
       lastHumidity=humidity;
   }
   float ph_float1 = static_cast<float>(static_cast<int>(readpH()));
-    /*Serial.print("Atlas-ph ");*/
-    /*Serial.println(ph_float1);*/
+      send(phmsg.setSensor(PH_ID).set(ph_float1,1));
+  //  Serial.print("Atlas-ph ");
+  //  Serial.println(ph_float1);
     if (lastPH != ph_float1) {
       // Send in the new ph_float1
-      send(phmsg.setSensor(PH_ID).set(ph_float1,1));
+      //send(phmsg.setSensor(PH_ID).set(ph_float1,1));
       // Save new ph_float1 for next compare
       lastPH=ph_float1;
   }
- }
   sleep(SLEEP_TIME);
 }
-
