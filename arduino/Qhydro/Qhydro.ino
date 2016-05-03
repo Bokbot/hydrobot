@@ -53,10 +53,10 @@ DHT dht;
 #define COMPARE_PH 1 // Send pH only if changed? 1 = Yes 0 = No
 #define COMPARE_EC 1 // Send EC only if changed? 1 = Yes 0 = No
 
-#define AIRTMP_ID 46
-#define HUM_ID 47
-#define PH_ID 48
-#define EC_ID 49
+#define AIRTMP_ID 56
+#define HUM_ID 57
+#define PH_ID 58
+#define EC_ID 59
 #define ezophaddress 99               //default I2C ID number for EZO pH Circuit.
 #define ezoecddress 98               //default I2C ID number for EZO EC Circuit.
 
@@ -144,6 +144,11 @@ void setup() {
   sensors.begin();
   // requestTemperatures() will not block current thread
   sensors.setWaitForConversion(false);
+  Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
+   while (!Serial) {
+    ; // wait for serial port to connect. Needed for Leonardo only
+  }
+  Wire.begin();      // join i2c bus as master
 }
 
 void presentation()  
@@ -188,6 +193,9 @@ void loop()
  
     // Fetch and round temperature to one decimal
     float temperature = static_cast<float>(static_cast<int>((getConfig().isMetric?sensors.getTempCByIndex(i):sensors.getTempFByIndex(i)) * 10.)) / 10.;
+    Serial.print(i);
+    Serial.print("-DS18B20-temp ");
+    Serial.println(temperature);
  
     // Only send data if temperature has changed and no error
     if (lastTemperature[i] != temperature && temperature != -127.00 && temperature != 85.00) {
@@ -200,6 +208,8 @@ void loop()
     }
   }
   float airtemp = dht.getTemperature();
+    Serial.print("DHT1122-airtemp ");
+    Serial.println(airtemp);
     // Only send data if airtemp has changed and no error
     if (lastAirtemp != airtemp ) {
  
@@ -209,6 +219,8 @@ void loop()
       lastAirtemp=airtemp;
     }
   float humidity = dht.getHumidity();
+    Serial.print("DHT1122-airhum ");
+    Serial.println(humidity);
     // Only send data if humidity has changed and no error
     if (lastHumidity != humidity) {
  
@@ -217,18 +229,16 @@ void loop()
       // Save new humidity for next compare
       lastHumidity=humidity;
   }
-  float ph_float1 = readpH();
-    #if COMPARE_PH == 1
+  float ph_float1 = static_cast<float>(static_cast<int>(readpH()));
+    Serial.print("Atlas-ph ");
+    Serial.println(ph_float1);
     if (lastPH != ph_float1) {
-    #else
-    #endif
- 
       // Send in the new ph_float1
-      send(phmsg.setSensor(HUM_ID).set(ph_float1,1));
+      send(phmsg.setSensor(PH_ID).set(ph_float1,1));
       // Save new ph_float1 for next compare
       lastPH=ph_float1;
-    }
   }
+ }
   sleep(SLEEP_TIME);
 }
 
