@@ -53,10 +53,10 @@ DHT dht;
 #define COMPARE_PH 1 // Send pH only if changed? 1 = Yes 0 = No
 #define COMPARE_EC 1 // Send EC only if changed? 1 = Yes 0 = No
 
-#define HUM_ID 17
-#define PH_ID 38
-#define EC_ID 39
-#define AIRTMP_ID 20
+#define AIRTMP_ID 46
+#define HUM_ID 47
+#define PH_ID 48
+#define EC_ID 49
 #define ezophaddress 99               //default I2C ID number for EZO pH Circuit.
 #define ezoecddress 98               //default I2C ID number for EZO EC Circuit.
 
@@ -85,7 +85,8 @@ boolean receivedConfig = false;
 boolean metric = true; 
 // Initialize temperature message
 MyMessage tempmsg(0,V_TEMP);
-MyMessage airtempmsg(0,V_TEMP);
+//MyMessage airtempmsg(AIRTMP_ID,V_TEMP);
+MyMessage airtempmsg(AIRTMP_ID,V_TEMP);
 MyMessage humiditymsg(HUM_ID,V_HUM);
 //MyMessage phmsg(PH_ID,V_PH);
 MyMessage phmsg(PH_ID,V_TEMP);
