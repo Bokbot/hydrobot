@@ -778,9 +778,9 @@ char *ftoa(char *a, double f, int precision){
 float readpH() {
     float internal_ph_float;                  //float var used to hold the float value of the pH. 
     time_=1800;
-    //Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
-    //Wire.write('r');        //transmit the command that was sent through the serial port.
-    //Wire.endTransmission();          //end the I2C data transmission.
+    Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
+    Wire.write('r');        //transmit the command that was sent through the serial port.
+    Wire.endTransmission();          //end the I2C data transmission.
     delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
     //Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
     //code=Wire.read();               //the first byte is the response code, we read this separately.
@@ -808,7 +808,7 @@ float readpH() {
      i+=1;                            //incur the counter for the array element.
       if(in_char==0){                 //if we see that we have been sent a null command.
           i=0;                        //reset the counter i to 0.
-          //Wire.endTransmission();     //end the I2C data transmission.
+          Wire.endTransmission();     //end the I2C data transmission.
           break;                      //exit the while loop.
       }
     }

@@ -60,6 +60,15 @@ DHT dht;
 #define ezophaddress 99               //default I2C ID number for EZO pH Circuit.
 #define ezoecddress 98               //default I2C ID number for EZO EC Circuit.
 
+//char computerdata[20];           //we make a 20 byte character array to hold incoming data from a pc/mac/other.   
+//byte received_from_computer=0;   //we need to know how many characters have been received.    
+//byte serial_event=0;             //a flag to signal when data has been received from the pc/mac/other. 
+byte code=0;                     //used to hold the I2C response code. 
+char ph_data[20];                //we make a 20 byte character array to hold incoming data from the pH circuit. 
+byte in_char=0;                  //used as a 1 byte buffer to store in bound bytes from the pH Circuit.   
+byte i=0;                        //counter used for ph_data array. 
+int time_=1800;                   //used to change the delay needed depending on the command sent to the EZO Class pH Circuit. 
+float ph_float = 0;                  //float var used to hold the float value of the pH. 
 
 #define ONE_WIRE_BUS 3 // Pin where dallase sensor is connected 
 #define MAX_ATTACHED_DS18B20 16
@@ -68,14 +77,15 @@ OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance to communicate with a
 DallasTemperature sensors(&oneWire); // Pass the oneWire reference to Dallas Temperature. 
 float lastTemperature[MAX_ATTACHED_DS18B20];
 float lastHumidity = 0;
+float lastAirtemp = 0;
 float lastPH = 0;
 float lastEC = 0;
 int numSensors=0;
-int time_=1800;                   //used to change the delay needed depending on the command sent to the EZO Class pH Circuit. 
 boolean receivedConfig = false;
 boolean metric = true; 
 // Initialize temperature message
 MyMessage tempmsg(0,V_TEMP);
+MyMessage airtempmsg(0,V_TEMP);
 MyMessage humiditymsg(HUM_ID,V_HUM);
 MyMessage phmsg(PH_ID,V_PH);
 MyMessage ecmsg(EC_ID,V_EC);
@@ -83,12 +93,12 @@ MyMessage ecmsg(EC_ID,V_EC);
 float readpH() {
     float internal_ph_float;                  //float var used to hold the float value of the pH. 
     time_=1800;
-    //Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
-    //Wire.write('r');        //transmit the command that was sent through the serial port.
-    //Wire.endTransmission();          //end the I2C data transmission.
+    Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
+    Wire.write('r');        //transmit the command that was sent through the serial port.
+    Wire.endTransmission();          //end the I2C data transmission.
     delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
-    //Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
-    //code=Wire.read();               //the first byte is the response code, we read this separately.
+    Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
+    code=Wire.read();               //the first byte is the response code, we read this separately.
     switch (code){                  //switch case based on what the response code is.
       case 1:                       //decimal 1.
     //    Serial.println("Success");  //means the command was successful.
@@ -113,7 +123,7 @@ float readpH() {
      i+=1;                            //incur the counter for the array element.
       if(in_char==0){                 //if we see that we have been sent a null command.
           i=0;                        //reset the counter i to 0.
-          //Wire.endTransmission();     //end the I2C data transmission.
+          Wire.endTransmission();     //end the I2C data transmission.
           break;                      //exit the while loop.
       }
     }
@@ -151,9 +161,9 @@ void presentation()
   // Humidity
   present(HUM_ID, S_HUM);
   // pH
-  present(PH_ID, S_PH);
+  present(PH_ID, S_WATER_QUALITY);
   // EC
-  present(EC_ID, S_EC);
+  present(EC_ID, S_WATER_QUALITY);
   // AIRTMP
   present(AIRTMP_ID, S_TEMP);
 }
@@ -175,11 +185,8 @@ void loop()
     float temperature = static_cast<float>(static_cast<int>((getConfig().isMetric?sensors.getTempCByIndex(i):sensors.getTempFByIndex(i)) * 10.)) / 10.;
  
     // Only send data if temperature has changed and no error
-    #if COMPARE_TEMP == 1
     if (lastTemperature[i] != temperature && temperature != -127.00 && temperature != 85.00) {
-    #else
-    if (temperature != -127.00 && temperature != 85.00) {
-    #endif
+      if (temperature != -127.00 && temperature != 85.00) {
  
       // Send in the new temperature
       send(tempmsg.setSensor(i).set(temperature,1));
@@ -189,40 +196,32 @@ void loop()
   }
   float airtemp = dht.getTemperature();
     // Only send data if airtemp has changed and no error
-    #if COMPARE_TEMP == 1
     if (lastAirtemp != airtemp ) {
-    #endif
  
       // Send in the new airtemp
       send(airtempmsg.setSensor(AIRTMP_ID).set(airtemp,1));
       // Save new airtemp for next compare
       lastAirtemp=airtemp;
     }
-  }
   float humidity = dht.getHumidity();
     // Only send data if humidity has changed and no error
-    #if COMPARE_HUM == 1
-    if (lastHumidity != humidity && humidity != -127.00 && humidity != 85.00) {
-    #else
-    if (humidity != -127.00 && humidity != 85.00) {
-    #endif
+    if (lastHumidity != humidity) {
  
       // Send in the new humidity
       send(humiditymsg.setSensor(HUM_ID).set(humidity,1));
       // Save new humidity for next compare
       lastHumidity=humidity;
-    }
   }
-  float ph_float = readpH();                  //float var used to hold the float value of the pH. 
-    // Only send data if ph_float has changed and no error
+  float ph_float1 = readpH();
     #if COMPARE_PH == 1
-    if (lastPH != ph_float ) {
+    if (lastPH != ph_float1) {
+    #else
     #endif
  
-      // Send in the new ph_float
-      send(phmsg.setSensor(HUM_ID).set(ph_float,1));
-      // Save new ph_float for next compare
-      lastPH=ph_float;
+      // Send in the new ph_float1
+      send(phmsg.setSensor(HUM_ID).set(ph_float1,1));
+      // Save new ph_float1 for next compare
+      lastPH=ph_float1;
     }
   }
   sleep(SLEEP_TIME);
