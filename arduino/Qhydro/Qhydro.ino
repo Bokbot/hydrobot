@@ -54,8 +54,8 @@ DHT dht;
 #define COMPARE_EC 1 // Send EC only if changed? 1 = Yes 0 = No
 
 #define HUM_ID 17
-#define PH_ID 18
-#define EC_ID 19
+#define PH_ID 38
+#define EC_ID 39
 #define AIRTMP_ID 20
 #define ezophaddress 99               //default I2C ID number for EZO pH Circuit.
 #define ezoecddress 98               //default I2C ID number for EZO EC Circuit.
@@ -87,8 +87,10 @@ boolean metric = true;
 MyMessage tempmsg(0,V_TEMP);
 MyMessage airtempmsg(0,V_TEMP);
 MyMessage humiditymsg(HUM_ID,V_HUM);
-MyMessage phmsg(PH_ID,V_PH);
-MyMessage ecmsg(EC_ID,V_EC);
+//MyMessage phmsg(PH_ID,V_PH);
+MyMessage phmsg(PH_ID,V_TEMP);
+//MyMessage ecmsg(EC_ID,V_EC);
+MyMessage ecmsg(EC_ID,V_TEMP);
 
 float readpH() {
     float internal_ph_float;                  //float var used to hold the float value of the pH. 
@@ -161,9 +163,11 @@ void presentation()
   // Humidity
   present(HUM_ID, S_HUM);
   // pH
-  present(PH_ID, S_WATER_QUALITY);
+  //present(PH_ID, S_WATER_QUALITY);
+  present(PH_ID, S_TEMP);
   // EC
-  present(EC_ID, S_WATER_QUALITY);
+  //present(EC_ID, S_WATER_QUALITY);
+  present(EC_ID, S_TEMP);
   // AIRTMP
   present(AIRTMP_ID, S_TEMP);
 }
