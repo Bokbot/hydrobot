@@ -29,8 +29,8 @@
  */
 
 #define moisture_input 0
-#define divider_top 12
-#define divider_bottom 13
+#define divider_top 7
+#define divider_bottom 8
 
 // Enable debug prints to serial monitor
 #define MY_DEBUG 
@@ -135,12 +135,34 @@ float readpH() {
     time_=1800;
     // set temp compensation
     Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
-    Wire.write('T,');        //transmit the command that was sent through the serial port.
+    Wire.write('T');        //transmit the command that was sent through the serial port.
+    Wire.write(',');        //transmit the command that was sent through the serial port.
+    Wire.write(floatToString(buffer, temperature , 2));        //transmit the command that was sent through the serial port.
+    Serial.println(floatToString(buffer, temperature , 2));  //means the command was successful.
     Wire.write(floatToString(buffer, temperature , 2));        //transmit the command that was sent through the serial port.
     Wire.endTransmission();          //end the I2C data transmission.
     delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
     Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
     delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
+    code=Wire.read();               //the first byte is the response code, we read this separately.
+    switch (code){                  //switch case based on what the response code is.
+      case 1:                       //decimal 1.
+        Serial.println("Success");  //means the command was successful.
+      break;                        //exits the switch case.
+
+     case 2:                        //decimal 2.
+       Serial.println("Failed");    //means the command has failed.
+     break;                         //exits the switch case.
+
+     case 254:                      //decimal 254.
+      Serial.println("Pending");   //means the command has not yet been finished calculating.
+     break;                         //exits the switch case.
+
+     case 255:                      //decimal 255.
+      Serial.println("No Data");   //means there is no further data to send.
+     break;                         //exits the switch case.
+    }
+  //  Serial.print("Atlas-ph ");
     // now begin query
     Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
     Wire.write('r');        //transmit the command that was sent through the serial port.
@@ -279,7 +301,7 @@ void loop()
       // Save new humidity for next compare
       lastHumidity=humidity;
   }
-  float electronicconductivity = dht.getelectronicconductivity();
+  float electronicconductivity = SoilMoisture();
   send(ecmsg.setSensor(EC_ID).set(electronicconductivity,1));
   float ph_float1 = static_cast<float>(static_cast<int>(readpH()));
       send(phmsg.setSensor(PH_ID).set(ph_float1,1));
