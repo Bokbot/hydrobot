@@ -44,6 +44,7 @@
 #include <OneWire.h>
 #include "DHT.h"
 #include <Wire.h>
+#include "floatToString.h" 
 
 const int DHT_PIN = 2; // digital pin 2
 DHT dht;
@@ -53,6 +54,9 @@ DHT dht;
 #define COMPARE_PH 1 // Send pH only if changed? 1 = Yes 0 = No
 #define COMPARE_EC 1 // Send EC only if changed? 1 = Yes 0 = No
 
+// Which DS18B20 is the water temp where the pH sensor resides?
+#define WATERTEMPSENSOR 1
+
 #define AIRTMP_ID 56
 #define HUM_ID 57
 #define PH_ID 58
@@ -60,6 +64,7 @@ DHT dht;
 #define ezophaddress 99               //default I2C ID number for EZO pH Circuit.
 #define ezoecddress 98               //default I2C ID number for EZO EC Circuit.
 
+char buffer[10];
 //char computerdata[20];           //we make a 20 byte character array to hold incoming data from a pc/mac/other.   
 //byte received_from_computer=0;   //we need to know how many characters have been received.    
 //byte serial_event=0;             //a flag to signal when data has been received from the pc/mac/other. 
@@ -94,8 +99,19 @@ MyMessage phmsg(PH_ID,V_TEMP);
 MyMessage ecmsg(EC_ID,V_TEMP);
 
 float readpH() {
+
+    float temperature = static_cast<float>(static_cast<int>((getConfig().isMetric?sensors.getTempCByIndex(WATERTEMPSENSOR):sensors.getTempFByIndex(WATERTEMPSENSOR)) * 10.)) / 10.;
     float internal_ph_float;                  //float var used to hold the float value of the pH. 
     time_=1800;
+    // set temp compensation
+    Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
+    Wire.write('T,');        //transmit the command that was sent through the serial port.
+    Wire.write(floatToString(buffer, temperature , 2));        //transmit the command that was sent through the serial port.
+    Wire.endTransmission();          //end the I2C data transmission.
+    delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
+    Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
+    delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
+    // now begin query
     Wire.beginTransmission(ezophaddress); //call the circuit by its ID number.
     Wire.write('r');        //transmit the command that was sent through the serial port.
     Wire.endTransmission();          //end the I2C data transmission.
