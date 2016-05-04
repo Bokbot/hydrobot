@@ -28,6 +28,10 @@
  * process() frequently. Repeaters should never sleep. 
  */
 
+#define moisture_input 0
+#define divider_top 12
+#define divider_bottom 13
+
 // Enable debug prints to serial monitor
 #define MY_DEBUG 
 
@@ -97,6 +101,32 @@ MyMessage humiditymsg(HUM_ID,V_HUM);
 MyMessage phmsg(PH_ID,V_TEMP);
 //MyMessage ecmsg(EC_ID,V_EC);
 MyMessage ecmsg(EC_ID,V_TEMP);
+
+int SoilMoisture(){
+  int reading;
+
+  // drive a current through the divider in one direction
+  digitalWrite(divider_top,LOW);
+  digitalWrite(divider_bottom,HIGH);
+
+  // wait a moment for capacitance effects to settle
+  delay(200);
+
+  // take a reading
+  reading=analogRead(moisture_input);
+
+  // reverse the current
+  digitalWrite(divider_top,HIGH);
+  digitalWrite(divider_bottom,LOW);
+
+  // give as much time in 'reverse' as in 'forward'
+  delay(200);
+
+  // stop the current
+  digitalWrite(divider_bottom,LOW);
+
+  return reading;
+}
 
 float readpH() {
 
@@ -249,6 +279,8 @@ void loop()
       // Save new humidity for next compare
       lastHumidity=humidity;
   }
+  float electronicconductivity = dht.getelectronicconductivity();
+  send(ecmsg.setSensor(EC_ID).set(electronicconductivity,1));
   float ph_float1 = static_cast<float>(static_cast<int>(readpH()));
       send(phmsg.setSensor(PH_ID).set(ph_float1,1));
   //  Serial.print("Atlas-ph ");
