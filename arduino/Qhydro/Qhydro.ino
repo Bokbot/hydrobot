@@ -138,8 +138,7 @@ float readpH() {
     Wire.write('T');        //transmit the command that was sent through the serial port.
     Wire.write(',');        //transmit the command that was sent through the serial port.
     Wire.write(floatToString(buffer, temperature , 2));        //transmit the command that was sent through the serial port.
-    Serial.println(floatToString(buffer, temperature , 2));  //means the command was successful.
-    Wire.write(floatToString(buffer, temperature , 2));        //transmit the command that was sent through the serial port.
+    //Serial.println(floatToString(buffer, temperature , 2));  //means the command was successful.
     Wire.endTransmission();          //end the I2C data transmission.
     delay(time_);                    //wait the correct amount of time for the circuit to complete its instruction.
     Wire.requestFrom(ezophaddress,20,1); //call the circuit and request 20 bytes (this may be more than we need)
@@ -147,19 +146,19 @@ float readpH() {
     code=Wire.read();               //the first byte is the response code, we read this separately.
     switch (code){                  //switch case based on what the response code is.
       case 1:                       //decimal 1.
-        Serial.println("Success");  //means the command was successful.
+        //Serial.println("Success");  //means the command was successful.
       break;                        //exits the switch case.
 
      case 2:                        //decimal 2.
-       Serial.println("Failed");    //means the command has failed.
+       //Serial.println("Failed");    //means the command has failed.
      break;                         //exits the switch case.
 
      case 254:                      //decimal 254.
-      Serial.println("Pending");   //means the command has not yet been finished calculating.
+      //Serial.println("Pending");   //means the command has not yet been finished calculating.
      break;                         //exits the switch case.
 
      case 255:                      //decimal 255.
-      Serial.println("No Data");   //means there is no further data to send.
+      //Serial.println("No Data");   //means there is no further data to send.
      break;                         //exits the switch case.
     }
   //  Serial.print("Atlas-ph ");
@@ -212,7 +211,7 @@ void setup() {
   sensors.begin();
   // requestTemperatures() will not block current thread
   sensors.setWaitForConversion(false);
-  Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
+  //Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
    //while (!Serial) {
     ; // wait for serial port to connect. Needed for Leonardo only
   //}
