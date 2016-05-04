@@ -81,7 +81,7 @@ void loop()
 void receive(const MyMessage &message) {
   // We only expect one type of message from controller. But we better check anyway.
   if (message.type==V_LIGHT) {
-    if(message.sensor = 8){
+    if(message.sensor == 8){
      // Change relay state
      digitalWrite(A3, message.getBool()?RELAY_ON:RELAY_OFF);
      // Store state in eeprom
