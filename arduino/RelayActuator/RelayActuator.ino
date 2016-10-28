@@ -46,7 +46,10 @@
 #define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 
 
-void before() { 
+void before() {
+
+  pinMode(A3, OUTPUT);
+
   for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS;sensor++, pin++) {
     // Then set relay pins in output mode
     pinMode(pin, OUTPUT);   
