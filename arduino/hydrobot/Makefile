@@ -4,8 +4,6 @@ BOARD_SUB   = atmega328
 #include /usr/share/arduino/Arduino.mk
 include /home/thoth/git/Arduino-Makefile/Arduino.mk
 
-# comment
-
 #include ../../Arduino.mk
 # ARDUINO_LIBS = Average Arduino-PID-Library Adafruit_GFX_Library Adafruit_ST7735_Library SPI Wire Time
 # ARDUINO_LIBS = Average Adafruit_GFX Arduino-PID-Library SPI Wire Time Adafruit_SSD1306
